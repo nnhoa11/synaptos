@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
-import { runPrototype } from "@/lib/prototype-core";
-import { getPrototypeDataset } from "@/lib/prototype-data";
+import { getSessionUserFromRequest } from "@/lib/server/auth";
+import { runAndPersist } from "@/lib/server/prototype-store";
+
+export const runtime = "nodejs";
 
 export async function POST(request) {
   const body = await request.json();
-  const { snapshot, calibrations = [], pendingAdjustments = {}, previousLabels = {} } = body;
+  const { snapshot } = body;
 
   if (!snapshot) {
     return NextResponse.json(
@@ -13,15 +15,8 @@ export async function POST(request) {
     );
   }
 
-  const { rows, stores } = await getPrototypeDataset();
-  const payload = runPrototype({
-    rows,
-    stores,
-    selectedSnapshot: snapshot,
-    calibrations,
-    pendingAdjustments,
-    previousLabels,
-  });
+  const user = await getSessionUserFromRequest(request);
+  const payload = await runAndPersist(snapshot, user.id, user);
 
   return NextResponse.json(payload);
 }

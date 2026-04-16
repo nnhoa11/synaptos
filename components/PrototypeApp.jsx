@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   average,
   currency,
@@ -19,21 +19,35 @@ const TABS = [
   { id: "audit", label: "Calibration & Audit" },
 ];
 
-export default function PrototypeApp({ stores, snapshots, defaultSnapshot }) {
-  const [role, setRole] = useState("manager");
-  const [selectedStoreId, setSelectedStoreId] = useState(stores[0]?.id ?? null);
+async function readJson(response) {
+  const payload = await response.json();
+  if (!response.ok) {
+    throw new Error(payload.error?.message || `HTTP ${response.status}`);
+  }
+  return payload;
+}
+
+export default function PrototypeApp({
+  stores: initialStores,
+  snapshots: initialSnapshots,
+  defaultSnapshot,
+}) {
+  const [session, setSession] = useState(null);
+  const [stores, setStores] = useState(initialStores);
+  const [snapshots, setSnapshots] = useState(initialSnapshots);
+  const [selectedStoreId, setSelectedStoreId] = useState(initialStores[0]?.id ?? null);
   const [selectedSnapshot, setSelectedSnapshot] = useState(
-    defaultSnapshot ?? snapshots[snapshots.length - 1] ?? null
+    defaultSnapshot ?? initialSnapshots[initialSnapshots.length - 1] ?? null
   );
   const [activeTab, setActiveTab] = useState("overview");
   const [latestRun, setLatestRun] = useState(null);
   const [labels, setLabels] = useState({});
   const [updatedLabelIds, setUpdatedLabelIds] = useState([]);
   const [auditLog, setAuditLog] = useState([]);
-  const [calibrations, setCalibrations] = useState([]);
-  const [pendingAdjustments, setPendingAdjustments] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [liveMessage, setLiveMessage] = useState("");
+  const [importState, setImportState] = useState(null);
   const [calibrationDraft, setCalibrationDraft] = useState({
     skuKey: "",
     shrinkageUnits: 0,
@@ -41,60 +55,89 @@ export default function PrototypeApp({ stores, snapshots, defaultSnapshot }) {
     notes: "",
   });
 
-  const labelsRef = useRef(labels);
-
-  useEffect(() => {
-    labelsRef.current = labels;
-  }, [labels]);
+  const role = session?.role ?? "admin";
+  const canApprove = ["admin", "manager"].includes(role);
+  const isAdmin = role === "admin";
 
   const selectedStore = useMemo(
     () => stores.find((store) => store.id === selectedStoreId) ?? null,
     [stores, selectedStoreId]
   );
 
+  const syncPayload = useCallback((payload) => {
+    setLatestRun(payload.latestRun);
+    setLabels(payload.labels || {});
+    setUpdatedLabelIds(payload.updatedLabelIds || []);
+  }, []);
+
+  const refreshAudit = useCallback(async (storeId) => {
+    const targetStoreId = storeId ?? selectedStoreId;
+    const query = targetStoreId ? `?storeId=${encodeURIComponent(targetStoreId)}` : "";
+    const payload = await readJson(await fetch(`/api/audit${query}`));
+    setAuditLog(payload);
+  }, [selectedStoreId]);
+
+  const loadCurrentPayload = useCallback(
+    async (snapshot = selectedSnapshot) => {
+      if (!snapshot) return;
+      setLoading(true);
+      setError("");
+
+      try {
+        const payload = await readJson(
+          await fetch(`/api/recommendations/current?snapshot=${encodeURIComponent(snapshot)}`)
+        );
+        syncPayload(payload);
+      } catch (loadError) {
+        setError(loadError.message);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [selectedSnapshot, syncPayload]
+  );
+
+  const hydrateSession = useCallback(async () => {
+    const payload = await readJson(await fetch("/api/auth/session"));
+    setSession(payload.user);
+    setStores(payload.stores);
+
+    const fallbackStoreId = payload.stores[0]?.id ?? null;
+    setSelectedStoreId((current) =>
+      current && payload.stores.some((store) => store.id === current)
+        ? current
+        : fallbackStoreId
+    );
+
+    return payload;
+  }, []);
+
+  const refreshSnapshots = useCallback(async () => {
+    const payload = await readJson(await fetch("/api/snapshots"));
+    setSnapshots(payload);
+    if (!selectedSnapshot && payload.length) {
+      setSelectedSnapshot(payload[payload.length - 1]);
+    }
+    return payload;
+  }, [selectedSnapshot]);
+
   const executeRun = useCallback(
-    async ({ recordAudit = false, auditMessage, auditDetails } = {}) => {
+    async ({ recordAudit = false } = {}) => {
       if (!selectedSnapshot) return;
       setLoading(true);
       setError("");
 
       try {
-        const response = await fetch("/api/recommendations/run", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            snapshot: selectedSnapshot,
-            calibrations,
-            pendingAdjustments,
-            previousLabels: labelsRef.current,
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error(`Run request failed with HTTP ${response.status}`);
-        }
-
-        const payload = await response.json();
-        setLatestRun(payload.latestRun);
-        setLabels(payload.labels);
-        labelsRef.current = payload.labels;
-        setUpdatedLabelIds(payload.updatedLabelIds || []);
-
+        const payload = await readJson(
+          await fetch("/api/recommendations/run", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ snapshot: selectedSnapshot }),
+          })
+        );
+        syncPayload(payload);
         if (recordAudit) {
-          setAuditLog((current) => [
-            {
-              id: `run_${Date.now()}`,
-              type: "Recommendation engine run",
-              actor: roleProfiles[role].label,
-              at: new Date().toISOString(),
-              message:
-                auditMessage ?? `${formatSnapshot(selectedSnapshot)} manual recompute`,
-              details:
-                auditDetails ??
-                `${payload.latestRun.recommendations.length} recommendations evaluated`,
-            },
-            ...current,
-          ]);
+          await refreshAudit();
         }
       } catch (runError) {
         setError(runError.message);
@@ -102,12 +145,66 @@ export default function PrototypeApp({ stores, snapshots, defaultSnapshot }) {
         setLoading(false);
       }
     },
-    [calibrations, pendingAdjustments, role, selectedSnapshot]
+    [refreshAudit, selectedSnapshot, syncPayload]
   );
 
   useEffect(() => {
-    executeRun();
-  }, [executeRun]);
+    let active = true;
+
+    async function bootstrap() {
+      try {
+        setLoading(true);
+        const sessionPayload = await hydrateSession();
+        await refreshSnapshots();
+        if (defaultSnapshot || selectedSnapshot) {
+          await loadCurrentPayload(defaultSnapshot || selectedSnapshot);
+        }
+        await refreshAudit(sessionPayload.stores[0]?.id ?? selectedStoreId);
+      } catch (bootstrapError) {
+        if (active) setError(bootstrapError.message);
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+
+    bootstrap();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!selectedSnapshot) return;
+    loadCurrentPayload(selectedSnapshot);
+  }, [loadCurrentPayload, selectedSnapshot]);
+
+  useEffect(() => {
+    refreshAudit(selectedStoreId).catch(() => {});
+  }, [refreshAudit, selectedStoreId]);
+
+  useEffect(() => {
+    const events = new EventSource("/api/events");
+    events.onmessage = (message) => {
+      const event = JSON.parse(message.data);
+      setLiveMessage(`${event.type.replaceAll(".", " ")} · ${formatAuditTime(event.at)}`);
+
+      if (
+        [
+          "run.completed",
+          "recommendation.updated",
+          "label.updated",
+          "price.updated",
+          "calibration.recorded",
+          "import.completed",
+        ].includes(event.type)
+      ) {
+        loadCurrentPayload(selectedSnapshot).catch(() => {});
+        refreshAudit(selectedStoreId).catch(() => {});
+      }
+    };
+
+    return () => events.close();
+  }, [loadCurrentPayload, refreshAudit, selectedSnapshot, selectedStoreId]);
 
   const recommendations = latestRun?.recommendations ?? [];
   const selectedStoreRecommendations = recommendations.filter(
@@ -131,10 +228,7 @@ export default function PrototypeApp({ stores, snapshots, defaultSnapshot }) {
             .filter((recommendation) =>
               ["auto_applied", "approved"].includes(recommendation.status)
             )
-            .reduce(
-              (sum, recommendation) => sum + recommendation.expectedRescueGmv,
-              0
-            ),
+            .reduce((sum, recommendation) => sum + recommendation.expectedRescueGmv, 0),
         };
       }),
     [recommendations, stores]
@@ -252,76 +346,132 @@ export default function PrototypeApp({ stores, snapshots, defaultSnapshot }) {
     },
   ];
 
-  const canApprove = roleProfiles[role].canApprove;
+  async function switchRole(nextRole) {
+    const targetStoreId = nextRole === "admin" ? null : selectedStoreId ?? stores[0]?.id ?? null;
+    const payload = await readJson(
+      await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          role: nextRole,
+          storeId: targetStoreId,
+        }),
+      })
+    );
 
-  const pushAudit = useCallback((entry) => {
-    setAuditLog((current) => [entry, ...current]);
-  }, []);
-
-  function handleApprove(recommendation, discountPct) {
-    setPendingAdjustments((current) => ({
-      ...current,
-      [recommendation.id]: {
-        status: "approved",
-        discountPct,
-      },
-    }));
-
-    pushAudit({
-      id: `approve_${Date.now()}`,
-      type: "Recommendation approved",
-      actor: roleProfiles[role].label,
-      at: new Date().toISOString(),
-      message: `${recommendation.skuName} approved at ${discountPct}% markdown`,
-      details: recommendation.reasonSummary,
-    });
+    setSession(payload.user);
+    setStores(payload.stores);
+    if (payload.stores.length && !payload.stores.some((store) => store.id === selectedStoreId)) {
+      setSelectedStoreId(payload.stores[0].id);
+    }
+    await loadCurrentPayload(selectedSnapshot);
+    await refreshAudit(targetStoreId ?? selectedStoreId);
   }
 
-  function handleReject(recommendation) {
-    setPendingAdjustments((current) => ({
-      ...current,
-      [recommendation.id]: {
-        status: "rejected",
-      },
-    }));
-
-    pushAudit({
-      id: `reject_${Date.now()}`,
-      type: "Recommendation rejected",
-      actor: roleProfiles[role].label,
-      at: new Date().toISOString(),
-      message: `${recommendation.skuName} rejected by manager`,
-      details: recommendation.reasonSummary,
-    });
+  async function handleApprove(recommendation, discountPct) {
+    setLoading(true);
+    setError("");
+    try {
+      const payload = await readJson(
+        await fetch(`/api/recommendations/${recommendation.id}/approve`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            discountPct,
+            snapshot: selectedSnapshot,
+          }),
+        })
+      );
+      syncPayload(payload.payload);
+      await refreshAudit();
+    } catch (approveError) {
+      setError(approveError.message);
+    } finally {
+      setLoading(false);
+    }
   }
 
-  function handleCalibrationSubmit(event) {
+  async function handleReject(recommendation) {
+    setLoading(true);
+    setError("");
+    try {
+      const payload = await readJson(
+        await fetch(`/api/recommendations/${recommendation.id}/reject`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            snapshot: selectedSnapshot,
+          }),
+        })
+      );
+      syncPayload(payload.payload);
+      await refreshAudit();
+    } catch (rejectError) {
+      setError(rejectError.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleCalibrationSubmit(event) {
     event.preventDefault();
-    if (!calibrationDraft.skuKey) return;
+    if (!calibrationDraft.skuKey || !selectedStoreId || !selectedSnapshot) return;
 
-    const entry = {
-      skuKey: calibrationDraft.skuKey,
-      shrinkageUnits: Number(calibrationDraft.shrinkageUnits || 0),
-      spoiledUnits: Number(calibrationDraft.spoiledUnits || 0),
-      notes: calibrationDraft.notes.trim(),
-      storeId: selectedStoreId,
-    };
+    setLoading(true);
+    setError("");
+    try {
+      const payload = await readJson(
+        await fetch("/api/calibration", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            storeId: selectedStoreId,
+            skuKey: calibrationDraft.skuKey,
+            shrinkageUnits: Number(calibrationDraft.shrinkageUnits || 0),
+            spoiledUnits: Number(calibrationDraft.spoiledUnits || 0),
+            notes: calibrationDraft.notes.trim(),
+            snapshot: selectedSnapshot,
+          }),
+        })
+      );
+      syncPayload(payload.payload);
+      await refreshAudit();
+      setCalibrationDraft({
+        skuKey: calibrationSkuOptions[0] ?? "",
+        shrinkageUnits: 0,
+        spoiledUnits: 0,
+        notes: "",
+      });
+    } catch (calibrationError) {
+      setError(calibrationError.message);
+    } finally {
+      setLoading(false);
+    }
+  }
 
-    setCalibrations((current) => [...current, entry]);
-    pushAudit({
-      id: `cal_${Date.now()}`,
-      type: "Calibration saved",
-      actor: roleProfiles[role].label,
-      at: new Date().toISOString(),
-      message: `${entry.skuKey} adjusted with ${entry.shrinkageUnits} shrinkage and ${entry.spoiledUnits} spoiled units`,
-      details: entry.notes || "No notes provided",
-    });
-    setCalibrationDraft({
-      skuKey: calibrationSkuOptions[0] ?? "",
-      shrinkageUnits: 0,
-      spoiledUnits: 0,
-      notes: "",
-    });
+  async function handleBaselineImport() {
+    setLoading(true);
+    setError("");
+    try {
+      const payload = await readJson(
+        await fetch("/api/imports", {
+          method: "POST",
+        })
+      );
+      setImportState(payload.batch);
+      if (payload.payload) {
+        syncPayload(payload.payload);
+      }
+      const refreshedSnapshots = await refreshSnapshots();
+      if (!selectedSnapshot && refreshedSnapshots.length) {
+        setSelectedSnapshot(refreshedSnapshots[refreshedSnapshots.length - 1]);
+      }
+      await refreshAudit();
+    } catch (importError) {
+      setError(importError.message);
+    } finally {
+      setLoading(false);
+    }
   }
 
   const visibleAuditLog =
@@ -332,8 +482,8 @@ export default function PrototypeApp({ stores, snapshots, defaultSnapshot }) {
             id: "seed_1",
             type: "System ready",
             actor: "SynaptOS",
-            at: new Date().toISOString(),
-            message: "Prototype loaded with the baseline dataset",
+            createdAt: new Date().toISOString(),
+            message: "Persistent v2 store is ready",
             details:
               "Run the recommendation engine or approve a pending action to populate the audit log.",
           },
@@ -348,17 +498,15 @@ export default function PrototypeApp({ stores, snapshots, defaultSnapshot }) {
         <header className="hero">
           <div>
             <p className="eyebrow">Retail Nervous System</p>
-            <h1>SynaptOS Prototype</h1>
+            <h1>SynaptOS v2 Prototype</h1>
             <p className="hero-copy">
-              Agentic markdown operations for fresh-food retail, rebuilt as a
-              Next.js App Router prototype with manager approvals and
-              shelf-label updates.
+              Durable markdown operations with server-backed approvals, calibration,
+              audit history, imports, and realtime operator updates.
             </p>
           </div>
           <div className="hero-badges">
-            <span className="badge">3 Stores</span>
-            <span className="badge">Next.js App Router</span>
-            <span className="badge">Approval Guardrails</span>
+            <span className="badge">SSE Events</span>
+            <span className="badge">RBAC Session</span>
           </div>
         </header>
 
@@ -368,7 +516,7 @@ export default function PrototypeApp({ stores, snapshots, defaultSnapshot }) {
             <select
               id="roleSelect"
               value={role}
-              onChange={(event) => setRole(event.target.value)}
+              onChange={(event) => switchRole(event.target.value)}
             >
               {Object.entries(roleProfiles).map(([value, profile]) => (
                 <option key={value} value={value}>
@@ -383,6 +531,7 @@ export default function PrototypeApp({ stores, snapshots, defaultSnapshot }) {
             <select
               id="storeSelect"
               value={selectedStoreId ?? ""}
+              disabled={!isAdmin}
               onChange={(event) => setSelectedStoreId(event.target.value)}
             >
               {stores.map((store) => (
@@ -410,14 +559,39 @@ export default function PrototypeApp({ stores, snapshots, defaultSnapshot }) {
 
           <button
             className="button button-primary"
-            onClick={() =>
-              executeRun({
-                recordAudit: true,
-              })
-            }
+            onClick={() => executeRun({ recordAudit: true })}
           >
             Run Recommendation Engine
           </button>
+
+          {isAdmin && (
+            <button className="button" onClick={handleBaselineImport}>
+              Resync Baseline Import
+            </button>
+          )}
+        </section>
+
+        <section className="panel">
+          <div className="panel-header">
+            <h2>Session and Live State</h2>
+            <span className="panel-subtitle">
+              {session ? `${session.name} · ${roleProfiles[session.role].label}` : "Loading session"}
+            </span>
+          </div>
+          <div className="store-stats">
+            <div className="stat-chip">
+              <span className="small-copy">User</span>
+              <strong>{session?.name ?? "Bootstrapping"}</strong>
+            </div>
+            <div className="stat-chip">
+              <span className="small-copy">Realtime</span>
+              <strong>{liveMessage || "Connected"}</strong>
+            </div>
+            <div className="stat-chip">
+              <span className="small-copy">Last Import</span>
+              <strong>{importState?.status ?? "completed"}</strong>
+            </div>
+          </div>
         </section>
 
         {loading && (
@@ -426,7 +600,7 @@ export default function PrototypeApp({ stores, snapshots, defaultSnapshot }) {
             <div>
               <h2>Running retail decision engine</h2>
               <p>
-                Recomputing lot-level risk, markdown recommendations, and
+                Loading persisted state, recomputing lot-level risk, and refreshing
                 shelf-label state for the selected snapshot.
               </p>
             </div>
@@ -436,7 +610,7 @@ export default function PrototypeApp({ stores, snapshots, defaultSnapshot }) {
         {!loading && error && (
           <section className="panel error-panel">
             <div>
-              <h2>Unable to run the prototype engine</h2>
+              <h2>Unable to complete the requested action</h2>
               <p>{error}</p>
             </div>
           </section>
@@ -473,9 +647,7 @@ export default function PrototypeApp({ stores, snapshots, defaultSnapshot }) {
                 <article className="panel">
                   <div className="panel-header">
                     <h2>Store Heatmap</h2>
-                    <span className="panel-subtitle">
-                      Live risk across the network
-                    </span>
+                    <span className="panel-subtitle">Live risk across the network</span>
                   </div>
                   <div className="store-card-grid">
                     {storeSummaries.map((summary) => (
@@ -516,18 +688,14 @@ export default function PrototypeApp({ stores, snapshots, defaultSnapshot }) {
                 <article className="panel">
                   <div className="panel-header">
                     <h2>Rescued GMV Trend</h2>
-                    <span className="panel-subtitle">
-                      Last 12 simulated runs
-                    </span>
+                    <span className="panel-subtitle">Last 12 persisted runs</span>
                   </div>
                   <div className="trend-chart">
                     {trend.map((point) => (
                       <div key={point.label} className="trend-bar">
                         <div
                           className="trend-bar-fill"
-                          style={{
-                            height: `${(point.value / maxTrend) * 220}px`,
-                          }}
+                          style={{ height: `${(point.value / maxTrend) * 220}px` }}
                         />
                         <span className="trend-bar-label">{point.label}</span>
                       </div>
@@ -584,9 +752,7 @@ export default function PrototypeApp({ stores, snapshots, defaultSnapshot }) {
                               className={`pill ${
                                 recommendation.status === "pending_review"
                                   ? "warn"
-                                  : ["approved", "auto_applied"].includes(
-                                        recommendation.status
-                                      )
+                                  : ["approved", "auto_applied"].includes(recommendation.status)
                                     ? "safe"
                                     : recommendation.status === "rejected"
                                       ? "danger"
@@ -722,8 +888,8 @@ export default function PrototypeApp({ stores, snapshots, defaultSnapshot }) {
                     <div className="panel">
                       <h3>No pending approvals</h3>
                       <p className="small-copy">
-                        The current snapshot does not require manager sign-off
-                        for the selected store.
+                        The current snapshot does not require manager sign-off for the
+                        selected store.
                       </p>
                     </div>
                   )}
@@ -748,16 +914,13 @@ export default function PrototypeApp({ stores, snapshots, defaultSnapshot }) {
                       <article
                         key={recommendation.id}
                         className={`label-card ${
-                          updatedLabelIds.includes(recommendation.lotId)
-                            ? "updated"
-                            : ""
+                          updatedLabelIds.includes(recommendation.lotId) ? "updated" : ""
                         }`}
                       >
                         <div>
                           <h3>{recommendation.skuName}</h3>
                           <p className="small-copy">
-                            {recommendation.category} · expires{" "}
-                            {recommendation.lot.expiryDate}
+                            {recommendation.category} · expires {recommendation.lot.expiryDate}
                           </p>
                         </div>
                         <div className="price-row">
@@ -765,16 +928,12 @@ export default function PrototypeApp({ stores, snapshots, defaultSnapshot }) {
                             {currency(label?.currentPrice ?? recommendation.activePrice)}
                           </span>
                           <span className="price-old">
-                            {currency(
-                              label?.previousPrice ?? recommendation.lot.basePrice
-                            )}
+                            {currency(label?.previousPrice ?? recommendation.lot.basePrice)}
                           </span>
                         </div>
                         <div
                           className={`pill ${
-                            ["approved", "auto_applied"].includes(
-                              recommendation.status
-                            )
+                            ["approved", "auto_applied"].includes(recommendation.status)
                               ? "safe"
                               : recommendation.status === "pending_review"
                                 ? "warn"
@@ -872,7 +1031,7 @@ export default function PrototypeApp({ stores, snapshots, defaultSnapshot }) {
                   <div className="panel-header">
                     <h2>Audit Log</h2>
                     <span className="panel-subtitle">
-                      Every recommendation, approval, rejection, and calibration
+                      Every recommendation, approval, rejection, calibration, and import
                     </span>
                   </div>
                   <div className="audit-log">
@@ -880,7 +1039,7 @@ export default function PrototypeApp({ stores, snapshots, defaultSnapshot }) {
                       <article key={entry.id} className="audit-entry">
                         <div className="audit-entry-header">
                           <span>{entry.type}</span>
-                          <span>{formatAuditTime(entry.at)}</span>
+                          <span>{formatAuditTime(entry.createdAt ?? entry.at)}</span>
                         </div>
                         <strong>{entry.message}</strong>
                         <p className="small-copy">{entry.details}</p>

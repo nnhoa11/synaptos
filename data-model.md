@@ -3,7 +3,7 @@
 ## Modeling Notes
 
 - The prototype models lot-level perishables because expiry-driven pricing is the central workflow.
-- All entities are scoped for a local prototype using `SQLite`, but the structure is suitable for later migration to `Postgres`.
+- All entities are scoped for a local prototype using `Postgres`.
 - State transitions focus on recommendation and approval flow rather than full retail ERP behavior.
 
 ## Entities

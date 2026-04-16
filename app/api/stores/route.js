@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
-import { getPrototypeMeta } from "@/lib/prototype-data";
+import { getSessionUserFromRequest } from "@/lib/server/auth";
+import { getAccessibleStores } from "@/lib/server/prototype-store";
 
-export async function GET() {
-  const { stores } = await getPrototypeMeta();
-  return NextResponse.json(stores);
+export const runtime = "nodejs";
+
+export async function GET(request) {
+  const user = await getSessionUserFromRequest(request);
+  return NextResponse.json(await getAccessibleStores(user));
 }

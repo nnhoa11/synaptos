@@ -5,10 +5,14 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "db:up": "docker compose -f docker-compose.postgres.yml up -d",
+    "db:down": "docker compose -f docker-compose.postgres.yml down",
+    "db:logs": "docker compose -f docker-compose.postgres.yml logs -f postgres"
   },
   "dependencies": {
     "next": "^15.5.5",
+    "pg": "^8.20.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   }
