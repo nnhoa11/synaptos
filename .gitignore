@@ -2,3 +2,13 @@
 .next
 node_modules
 npm-debug.log*
+.env*
+coverage
+dist
+build
+*.log
+*.tmp
+.vscode
+.idea
+Thumbs.db
+*.swp

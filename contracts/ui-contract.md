@@ -1,102 +1,160 @@
-# SynaptOS Prototype UI Contract
+# SynaptOS LLM-Integrated Control-Tower UI Contract
 
 ## Scope
 
-This contract defines the minimum UI surfaces that must exist for the prototype to satisfy the plan.
+This contract defines the minimum UI surfaces required by the control-tower architecture once the agent layer integrates with real LLM providers.
 
 ## Global Behaviors
 
-- The UI must support role switching between `staff`, `manager`, and `admin`.
-- All operational pages must display the selected store context.
-- Pricing changes must be visible in under one refresh cycle after approval.
-- Risk states must use a consistent color system:
-  - green: safe
-  - amber: action soon
-  - red: urgent
+- The UI must show source freshness before showing model proposals.
+- The UI must distinguish `aggregated fact`, `model proposal`, `guardrail result`, and `execution state` as separate stages.
+- The UI must stream updates over `SSE` without requiring a full page reload.
+- Guardrail-blocked actions must remain visible with the blocking rule.
+- Executed actions must link back to the originating proposal, model run, and aggregation run.
+- Simulated feeds and simulated executors must remain visibly labeled.
+- Model failures must be visible without breaking the rest of the control-tower screen.
 
 ## Required Screens
 
-### HQ Overview
+### Control Tower
 
 Must show:
 
-- store cards for all demo stores
-- total expiring lots today
-- pending manager reviews
-- rescued GMV trend
-
-Primary user:
-
-- `admin`
-
-### Store Operations Board
-
-Must show:
-
-- expiring lots table
-- hours to expiry
-- active price
-- base price
-- risk score
-- current recommendation status
+- external and internal signal freshness
+- latest aggregation run status
+- latest model run status
+- provider and model name for the latest run
+- route counts for labels, logistics, procurement, and approvals
+- per-store risk summary
 
 Primary users:
 
-- `staff`
+- `admin`
 - `manager`
 
-### Approval Queue
+### Proposal Queue
 
 Must show:
 
-- recommendation reason
-- recommended discount
-- recommended price
-- risk score
-- approval threshold context
+- proposal type
+- route
+- risk class
+- structured rationale
+- model confidence when present
+- guardrail outcome
+- downstream execution status
+- provider and prompt version metadata in a detail surface
+
+Primary users:
+
+- `manager`
+- `admin`
+
+### Human Approval Console
+
+Must show:
+
+- proposals with `discount > threshold`
+- proposed discount and price
+- affected lot and hours to expiry
+- matched guardrail rules
+- review notes history
 
 Must allow:
 
 - approve
 - reject
-- edit markdown
-- add comment
+- add review notes
 
-Primary user:
+Primary users:
 
 - `manager`
+- `admin`
 
-### Shelf Label Wall
+### Virtual E-ink Wall
 
 Must show:
 
 - product name
-- active price
+- active published price
 - previous price when recently changed
-- discount badge or reason badge
+- discount badge
+- execution timestamp
+- whether the underlying route is simulated or live
 
 Primary users:
 
 - `staff`
 - demo observers
 
-### Calibration and Audit
+### Logistics Workbench
 
 Must show:
 
-- discrepancy entry form
-- action history
-- manual overrides
-- rejected recommendations
+- unsaleable lots
+- selected route type
+- destination or disposition
+- task status
+- simulation badge until a live connector exists
 
 Primary users:
 
+- `logistics_coordinator`
+- `admin`
+
+### Procurement Console
+
+Must show:
+
+- stockout-risk proposals
+- recommended supplier
+- quantity
+- estimated cost
+- order status
+- simulation badge until a live connector exists
+
+Primary users:
+
+- `procurement_planner`
+- `admin`
+
+### Audit and Policy View
+
+Must show:
+
+- aggregation history
+- model run history
+- parse or schema failures
+- proposal history
+- matched guardrail rules
+- approvals and rejections
+- executor outcomes
+
+Primary users:
+
+- `admin`
 - `manager`
+
+### Model Run Detail
+
+Must show:
+
+- provider
+- model
+- rollout mode: `shadow`, `assisted`, or `live`
+- prompt version
+- token or usage metadata when available
+- parse status
+- failure reason when the model run fails
+
+Primary users:
+
 - `admin`
 
 ## State Rules
 
-- A recommendation requiring approval cannot appear as executed until approval occurs.
-- A rejected recommendation must remain visible in audit history.
-- A low-confidence lot must display a warning state in the operational view.
-- Shelf labels must always reflect `ActivePrice`, not the recommended price.
+- No action may appear as executed without a prior guardrail decision.
+- A blocked proposal must never appear in an execution queue.
+- A proposal requiring approval cannot appear on the virtual E-ink wall until approved and dispatched.
+- A failed model run must not erase the last successful control-tower state.
+- Unsaleable and procurement tasks must preserve their route-specific status even if the originating proposal changes later.

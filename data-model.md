@@ -1,10 +1,13 @@
-# SynaptOS Data Model
+# SynaptOS LLM-Integrated Control-Tower Data Model
 
 ## Modeling Notes
 
-- The prototype models lot-level perishables because expiry-driven pricing is the central workflow.
-- All entities are scoped for a local prototype using `Postgres`.
-- State transitions focus on recommendation and approval flow rather than full retail ERP behavior.
+- The target architecture remains a modular monolith backed by `Postgres`.
+- The main design change is that the `agent` boundary now integrates with real LLM providers.
+- The data model must preserve three truths separately:
+  - aggregated operational facts
+  - model-generated proposals
+  - deterministic policy and execution outcomes
 
 ## Entities
 
@@ -12,7 +15,7 @@
 
 Purpose:
 
-- Represents a retail location participating in the prototype.
+- Represents one retail location managed by SynaptOS.
 
 Fields:
 
@@ -23,105 +26,102 @@ Fields:
 - `type` enum: `premium`, `transit`, `residential`
 - `timezone`
 - `status` enum: `active`, `inactive`
+- `controlTowerEnabled`
+- `llmMode` enum: `disabled`, `shadow`, `assisted`, `live`
 
 Validation:
 
 - `code` must be unique
-- `type` must be one of the supported archetypes
+- `llmMode` must be one of the supported rollout modes
 
 Relationships:
 
-- one-to-one with `StoreProfile`
+- one-to-one with `StorePolicy`
 - one-to-many with `InventoryLot`
-- one-to-many with `SalesEvent`
-- one-to-many with `CalibrationEntry`
+- one-to-many with `PosTransaction`
+- one-to-many with `AggregationRun`
+- one-to-many with `ModelRun`
 
-### StoreProfile
+### StorePolicy
 
 Purpose:
 
-- Holds pricing and demand assumptions for a store.
+- Stores deterministic thresholds and execution constraints for one store.
 
 Fields:
 
 - `id`
 - `storeId`
-- `avgBasketSize`
-- `demandElasticityBand`
-- `markdownAggressiveness`
-- `trafficPatternJson`
 - `approvalThresholdPct`
+- `markdownMaxAutoDiscountPct`
+- `minMarginPct`
+- `procurementSpendCap`
+- `unsaleableHoursThreshold`
+- `allowedLogisticsRoutesJson`
+- `preferredSupplierId` nullable
 
 Validation:
 
 - `approvalThresholdPct` must be between `0` and `100`
+- `markdownMaxAutoDiscountPct` must be between `0` and `100`
+- `procurementSpendCap` must be greater than or equal to `0`
 
 ### User
 
 Purpose:
 
-- Represents a demo actor using the system.
+- Represents an authenticated actor who can review, dispatch, or inspect work.
 
 Fields:
 
 - `id`
 - `name`
 - `email`
-- `role` enum: `staff`, `manager`, `admin`
+- `role` enum: `staff`, `manager`, `admin`, `procurement_planner`, `logistics_coordinator`
 - `storeId` nullable
 
 Validation:
 
 - `role` must match one of the supported RBAC roles
 
-### Sku
+### Supplier
 
 Purpose:
 
-- Master record for a sellable product.
+- Represents a supplier that may receive procurement actions.
 
 Fields:
 
 - `id`
 - `code`
 - `name`
-- `category`
-- `unit`
-- `basePrice`
-- `unitCost`
-- `minMarginPct`
-- `isPerishable`
+- `status` enum: `active`, `inactive`
+- `leadTimeHours`
+- `catalogJson`
 
 Validation:
 
-- `basePrice` must be greater than `0`
-- `unitCost` must be greater than or equal to `0`
-- `minMarginPct` must be between `0` and `100`
-
-Relationships:
-
-- one-to-many with `InventoryLot`
-- one-to-many with `SalesEvent`
+- `code` must be unique
+- `leadTimeHours` must be greater than or equal to `0`
 
 ### InventoryLot
 
 Purpose:
 
-- Tracks a perishable batch with its own expiry clock.
+- Tracks one perishable batch and its on-hand state.
 
 Fields:
 
 - `id`
 - `storeId`
-- `skuId`
+- `skuKey`
 - `batchCode`
 - `receivedAt`
 - `expiresAt`
 - `quantityOnHand`
-- `basePrice`
-- `activePrice`
 - `confidenceScore`
-- `status` enum: `active`, `markdowned`, `expired`, `removed`
+- `currentPrice`
+- `status` enum: `active`, `markdowned`, `unsaleable`, `expired`, `removed`
 
 Validation:
 
@@ -132,229 +132,367 @@ Validation:
 Relationships:
 
 - many-to-one with `Store`
-- many-to-one with `Sku`
-- one-to-many with `PriceRecommendation`
-- one-to-many with `CalibrationEntry`
+- one-to-many with `ActionProposal`
+- one-to-many with `ExecutionTask`
 
-State transitions:
-
-- `active -> markdowned`
-- `active -> expired`
-- `markdowned -> expired`
-- `markdowned -> removed`
-
-### SalesEvent
+### PosTransaction
 
 Purpose:
 
-- Records sales velocity for decision-making and reporting.
+- Stores internal demand signals from POS activity.
 
 Fields:
 
 - `id`
 - `storeId`
-- `skuId`
+- `skuKey`
 - `lotId` nullable
 - `soldAt`
 - `quantity`
 - `unitPrice`
-- `totalAmount`
+- `grossAmount`
 
 Validation:
 
 - `quantity` must be greater than `0`
 - `unitPrice` must be greater than or equal to `0`
 
-### DemandSignal
+### SignalObservation
 
 Purpose:
 
-- Stores external or contextual signals used by the engine.
+- Represents any external or internal signal consumed by the aggregator.
 
 Fields:
 
 - `id`
+- `aggregationRunId`
+- `snapshotKey`
 - `storeId`
-- `signalType` enum: `weather`, `time_of_day`, `district_profile`, `traffic`
-- `signalValue`
-- `effectiveAt`
-- `expiresAt` nullable
-- `source`
+- `sourceFamily` enum: `external`, `internal`
+- `sourceType` enum: `weather_api`, `demographic_data`, `commodity_prices`, `pos_transactions`, `inventory_ledger`
+- `observedAt`
+- `freshnessStatus` enum: `fresh`, `degraded`, `stale`
+- `freshnessMinutes`
+- `provenance` enum: `simulated`, `live`
+- `payloadJson`
 
 Validation:
 
-- `signalType` must be supported by the scoring engine
+- `sourceType` must be one of the supported aggregator inputs
+- `freshnessMinutes` must be greater than or equal to `0`
 
-### RecommendationRun
+### AggregationRun
 
 Purpose:
 
-- Tracks a scoring pass over current inventory.
+- Captures one execution of the data aggregator.
 
 Fields:
 
 - `id`
-- `startedAt`
-- `completedAt`
-- `storeId` nullable
+- `snapshotKey`
+- `actorUserId` nullable
 - `status` enum: `running`, `completed`, `failed`
-- `engineVersion`
+- `summaryJson`
+- `createdAt`
 
 Relationships:
 
-- one-to-many with `PriceRecommendation`
+- one-to-many with `SignalObservation`
+- one-to-many with `AggregatedSnapshot`
+- one-to-many with `ModelRun`
 
-### PriceRecommendation
+### AggregatedSnapshot
 
 Purpose:
 
-- Represents a proposed pricing action for one lot.
+- Holds the normalized state bundle presented to the model layer.
 
 Fields:
 
 - `id`
-- `runId`
-- `lotId`
-- `riskScore`
-- `sellThroughScore`
-- `recommendedDiscountPct`
-- `recommendedPrice`
-- `reasonSummary`
-- `status` enum: `draft`, `pending_review`, `approved`, `rejected`, `executed`, `expired`
-- `requiresApproval`
+- `aggregationRunId`
+- `snapshotKey`
+- `storeId`
+- `status` enum: `ready`, `failed`
+- `sourceHealth` enum: `healthy`, `watch`, `attention`
+- `payloadJson`
+- `createdAt`
 
 Validation:
 
-- `riskScore` must be between `0` and `100`
-- `recommendedDiscountPct` must be between `0` and `100`
-- `recommendedPrice` must be greater than or equal to `0`
+- `payloadJson` must match the internal snapshot schema
+- one store may have one latest aggregated snapshot per aggregation run
+
+### PromptTemplate
+
+Purpose:
+
+- Represents a versioned prompt package used by the model layer.
+
+Fields:
+
+- `id`
+- `name`
+- `version`
+- `systemPrompt`
+- `developerPrompt`
+- `responseSchemaJson`
+- `isActive`
+- `createdAt`
+
+Validation:
+
+- `name + version` must be unique
+- `responseSchemaJson` must be valid JSON schema
+
+### ModelRun
+
+Purpose:
+
+- Captures one provider-backed LLM invocation against an aggregated snapshot.
+
+Fields:
+
+- `id`
+- `aggregationRunId`
+- `snapshotKey`
+- `storeId`
+- `mode` enum: `shadow`, `assisted`, `live`
+- `provider` enum: `openai`, `gemini`, `anthropic`, `mock`
+- `model`
+- `promptTemplateId`
+- `status` enum: `running`, `completed`, `failed`, `rate_limited`, `timed_out`
+- `latencyMs`
+- `retryCount`
+- `usageJson`
+- `estimatedCost`
+- `errorCode` nullable
+- `errorMessage` nullable
+- `startedAt`
+- `completedAt` nullable
+
+Validation:
+
+- `provider` and `model` are required
+- `estimatedCost` must be greater than or equal to `0`
+- `mode` must reflect a supported rollout mode
+
+Relationships:
+
+- many-to-one with `AggregatedSnapshot` through `aggregationRunId`
+- one-to-many with `ModelInputArtifact`
+- one-to-many with `ModelOutputArtifact`
+- one-to-many with `ActionProposal`
+
+### ModelInputArtifact
+
+Purpose:
+
+- Stores the compacted prompt context sent to the provider.
+
+Fields:
+
+- `id`
+- `modelRunId`
+- `snapshotSummaryJson`
+- `policyHintsJson`
+- `messagesJson`
+- `tokenEstimate`
+- `redactionStatus` enum: `not_needed`, `redacted`
+- `createdAt`
+
+Validation:
+
+- `messagesJson` must preserve the exact request payload or a faithful replayable equivalent
+
+### ModelOutputArtifact
+
+Purpose:
+
+- Stores raw provider output and parse results.
+
+Fields:
+
+- `id`
+- `modelRunId`
+- `rawText`
+- `structuredJson` nullable
+- `parseStatus` enum: `parsed`, `repair_failed`, `schema_failed`, `provider_failed`
+- `validationErrorsJson`
+- `createdAt`
+
+Validation:
+
+- `parseStatus` must explain whether structured output was accepted
+
+### ActionProposal
+
+Purpose:
+
+- Represents one structured action proposed by the LLM layer.
+
+Fields:
+
+- `id`
+- `modelRunId`
+- `aggregationRunId`
+- `snapshotKey`
+- `storeId`
+- `lotId` nullable
+- `skuKey` nullable
+- `proposalType` enum: `markdown`, `unsaleable`, `stockout_risk`
+- `executionRoute` enum: `label`, `approval`, `logistics`, `procurement`
+- `recommendedDiscountPct` nullable
+- `proposedPrice` nullable
+- `proposedQuantity` nullable
+- `recommendedSupplier` nullable
+- `logisticsDisposition` nullable
+- `rationale`
+- `confidenceScore` nullable
+- `status` enum: `draft`, `blocked`, `pending_approval`, `approved`, `rejected`, `dispatched`, `completed`
+- `metadataJson`
+- `createdAt`
+
+Validation:
+
+- `executionRoute` must be consistent with `proposalType`
+- `recommendedDiscountPct` must be between `0` and `100` when present
+- `proposedQuantity` must be greater than `0` when present
 
 State transitions:
 
+- `draft -> blocked`
 - `draft -> approved`
-- `draft -> pending_review`
-- `pending_review -> approved`
-- `pending_review -> rejected`
-- `approved -> executed`
-- `draft -> expired`
-- `pending_review -> expired`
+- `draft -> pending_approval`
+- `pending_approval -> approved`
+- `pending_approval -> rejected`
+- `approved -> dispatched`
+- `dispatched -> completed`
 
-### ApprovalDecision
+### GuardrailEvaluation
 
 Purpose:
 
-- Captures human review of a risky recommendation.
+- Represents the deterministic business decision applied to one proposal.
 
 Fields:
 
 - `id`
-- `recommendationId`
-- `reviewedBy`
-- `decision` enum: `approved`, `rejected`, `edited`
-- `approvedDiscountPct` nullable
-- `approvedPrice` nullable
-- `comment` nullable
-- `reviewedAt`
-
-Validation:
-
-- `approvedPrice` is required when `decision` is `edited`
-
-### ActivePrice
-
-Purpose:
-
-- Stores the currently effective price shown to the shelf-label view.
-
-Fields:
-
-- `id`
-- `lotId`
-- `recommendationId` nullable
-- `currentPrice`
-- `previousPrice`
-- `effectiveFrom`
-- `effectiveUntil` nullable
-- `source` enum: `base`, `auto_markdown`, `manager_override`
-
-Validation:
-
-- `currentPrice` must be greater than or equal to `0`
-
-### ShelfLabelEvent
-
-Purpose:
-
-- Provides an auditable stream of virtual shelf-label updates.
-
-Fields:
-
-- `id`
+- `proposalId`
 - `storeId`
-- `lotId`
-- `activePriceId`
-- `emittedAt`
-- `labelStateJson`
+- `outcome` enum: `approved`, `requires_approval`, `blocked`
+- `matchedRule`
+- `executionRoute`
+- `reason`
+- `status` enum: `ready`, `waiting_approval`, `blocked`
+- `createdAt`
 
-### CalibrationEntry
+Validation:
+
+- every `ActionProposal` must have exactly one latest `GuardrailEvaluation`
+
+### ApprovalRequest
 
 Purpose:
 
-- Records manager-entered discrepancy corrections.
+- Tracks human review for proposals that cannot auto-execute.
 
 Fields:
 
 - `id`
+- `proposalId`
 - `storeId`
-- `skuId`
-- `lotId` nullable
-- `enteredBy`
-- `enteredAt`
-- `shrinkageUnits`
-- `spoiledUnits`
-- `notes`
+- `status` enum: `pending`, `approved`, `rejected`
+- `matchedRule`
+- `requestedBy`
+- `reviewedBy` nullable
+- `reviewNotes`
+- `createdAt`
+- `reviewedAt` nullable
 
 Validation:
 
-- `shrinkageUnits` must be greater than or equal to `0`
-- `spoiledUnits` must be greater than or equal to `0`
+- only proposals with `GuardrailEvaluation.outcome = requires_approval` may create approval requests
 
-### ImpactMetric
+### ExecutionTask
 
 Purpose:
 
-- Stores rolled-up metrics for reporting.
+- Represents downstream executable work after guardrail evaluation.
+
+Fields:
+
+- `id`
+- `proposalId`
+- `storeId`
+- `route` enum: `label`, `logistics`, `procurement`
+- `taskType`
+- `status` enum: `ready`, `dispatched`, `completed`, `blocked`
+- `detailsJson`
+- `simulated`
+- `createdAt`
+- `dispatchedAt` nullable
+
+Validation:
+
+- no task may be created without a prior approved or approval-cleared guardrail state
+
+### LogisticsRoute
+
+Purpose:
+
+- Holds route-specific logistics handling details.
+
+Fields:
+
+- `id`
+- `executionTaskId`
+- `storeId`
+- `routeType`
+- `destination`
+- `status`
+- `createdAt`
+
+### ProcurementOrder
+
+Purpose:
+
+- Holds bounded replenishment order details.
+
+Fields:
+
+- `id`
+- `executionTaskId`
+- `storeId`
+- `supplier`
+- `quantity`
+- `estimatedCost`
+- `status`
+- `createdAt`
+
+Validation:
+
+- `estimatedCost` must not exceed deterministic spend caps after guardrail approval
+
+### AuditEvent
+
+Purpose:
+
+- Stores operator-visible history across the control-tower lifecycle.
 
 Fields:
 
 - `id`
 - `storeId` nullable
-- `metricDate`
-- `rescuedGmv`
-- `unitsClearedBeforeExpiry`
-- `markdownCount`
-- `overrideCount`
-- `estimatedWasteAvoided`
+- `type`
+- `actor`
+- `actorUserId` nullable
+- `message`
+- `details`
+- `createdAt`
 
 Validation:
 
-- numeric fields must be greater than or equal to `0`
-
-## Relationship Summary
-
-- `Store` has one `StoreProfile`
-- `Store` has many `InventoryLot`
-- `Store` has many `SalesEvent`
-- `Store` has many `CalibrationEntry`
-- `Sku` has many `InventoryLot`
-- `Sku` has many `SalesEvent`
-- `InventoryLot` has many `PriceRecommendation`
-- `RecommendationRun` has many `PriceRecommendation`
-- `PriceRecommendation` may have one `ApprovalDecision`
-- `InventoryLot` has many `ActivePrice` revisions over time
-
-## Prototype Constraints
-
-- The prototype assumes one active selling price per lot at a time.
-- A lot may be sold without strict lot-level sales attribution; `lotId` on `SalesEvent` is nullable to allow simplified demo data.
-- `ImpactMetric` is derived rather than source-of-truth data, and can be recomputed.
+- audit coverage must include aggregation, model runs, parse failures, guardrail outcomes, approvals, and execution outcomes

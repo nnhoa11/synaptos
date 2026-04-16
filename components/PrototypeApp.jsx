@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import ControlTowerConsole from "@/components/ControlTowerConsole";
 import {
   average,
   currency,
@@ -10,6 +11,10 @@ import {
   roleProfiles,
   shortCurrency,
 } from "@/lib/prototype-core";
+import {
+  CONTROL_TOWER_MODE,
+  LEGACY_MODE,
+} from "@/lib/server/control-tower/constants";
 
 const TABS = [
   { id: "overview", label: "HQ Overview" },
@@ -48,6 +53,9 @@ export default function PrototypeApp({
   const [error, setError] = useState("");
   const [liveMessage, setLiveMessage] = useState("");
   const [importState, setImportState] = useState(null);
+  const [runtimeView, setRuntimeView] = useState(LEGACY_MODE);
+  const [controlTowerStores, setControlTowerStores] = useState([]);
+  const [controlTowerDetail, setControlTowerDetail] = useState(null);
   const [calibrationDraft, setCalibrationDraft] = useState({
     skuKey: "",
     shrinkageUnits: 0,
@@ -121,6 +129,32 @@ export default function PrototypeApp({
     return payload;
   }, [selectedSnapshot]);
 
+  const refreshControlTowerStores = useCallback(async () => {
+    const payload = await readJson(await fetch("/api/stores"));
+    setControlTowerStores(payload);
+    return payload;
+  }, []);
+
+  const refreshControlTowerDetail = useCallback(
+    async (storeId = selectedStoreId, snapshot = selectedSnapshot) => {
+      if (!storeId || !snapshot) {
+        return null;
+      }
+
+      const payload = await readJson(
+        await fetch(
+          `/api/stores/${encodeURIComponent(storeId)}/control-tower?snapshot=${encodeURIComponent(snapshot)}`
+        )
+      );
+      setControlTowerDetail(payload);
+      if (payload.mode === CONTROL_TOWER_MODE) {
+        setRuntimeView((current) => (current === LEGACY_MODE ? CONTROL_TOWER_MODE : current));
+      }
+      return payload;
+    },
+    [selectedSnapshot, selectedStoreId]
+  );
+
   const executeRun = useCallback(
     async ({ recordAudit = false } = {}) => {
       if (!selectedSnapshot) return;
@@ -148,6 +182,126 @@ export default function PrototypeApp({
     [refreshAudit, selectedSnapshot, syncPayload]
   );
 
+  const runAggregation = useCallback(async () => {
+    if (!selectedSnapshot) return;
+    setLoading(true);
+    setError("");
+    try {
+      await readJson(
+        await fetch("/api/aggregation/run", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ snapshot: selectedSnapshot }),
+        })
+      );
+      await refreshControlTowerStores();
+      await refreshControlTowerDetail();
+    } catch (aggregationError) {
+      setError(aggregationError.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [refreshControlTowerDetail, refreshControlTowerStores, selectedSnapshot]);
+
+  const generateProposals = useCallback(async () => {
+    if (!selectedSnapshot) return;
+    setLoading(true);
+    setError("");
+    try {
+      await readJson(
+        await fetch("/api/agent/runs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ snapshot: selectedSnapshot }),
+        })
+      );
+      await refreshControlTowerStores();
+      await refreshControlTowerDetail();
+    } catch (agentError) {
+      setError(agentError.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [refreshControlTowerDetail, refreshControlTowerStores, selectedSnapshot]);
+
+  const handleControlTowerApprove = useCallback(
+    async (proposal) => {
+      setLoading(true);
+      setError("");
+      try {
+        await readJson(
+          await fetch(`/api/proposals/${proposal.id}/approve`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              storeId: proposal.storeId,
+              reviewNotes: "Approved in control-tower console.",
+            }),
+          })
+        );
+        await refreshControlTowerStores();
+        await refreshControlTowerDetail();
+      } catch (approvalError) {
+        setError(approvalError.message);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [refreshControlTowerDetail, refreshControlTowerStores]
+  );
+
+  const handleControlTowerReject = useCallback(
+    async (proposal) => {
+      setLoading(true);
+      setError("");
+      try {
+        await readJson(
+          await fetch(`/api/proposals/${proposal.id}/reject`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              storeId: proposal.storeId,
+              reviewNotes: "Rejected in control-tower console.",
+            }),
+          })
+        );
+        await refreshControlTowerStores();
+        await refreshControlTowerDetail();
+      } catch (rejectionError) {
+        setError(rejectionError.message);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [refreshControlTowerDetail, refreshControlTowerStores]
+  );
+
+  const handleDispatchTask = useCallback(
+    async (task) => {
+      setLoading(true);
+      setError("");
+      try {
+        await readJson(
+          await fetch(`/api/execution/tasks/${task.id}/dispatch`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              storeId: task.storeId,
+              route: task.route,
+            }),
+          })
+        );
+        await refreshControlTowerStores();
+        await refreshControlTowerDetail();
+      } catch (dispatchError) {
+        setError(dispatchError.message);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [refreshControlTowerDetail, refreshControlTowerStores]
+  );
+
   useEffect(() => {
     let active = true;
 
@@ -156,10 +310,15 @@ export default function PrototypeApp({
         setLoading(true);
         const sessionPayload = await hydrateSession();
         await refreshSnapshots();
+        await refreshControlTowerStores();
         if (defaultSnapshot || selectedSnapshot) {
           await loadCurrentPayload(defaultSnapshot || selectedSnapshot);
         }
         await refreshAudit(sessionPayload.stores[0]?.id ?? selectedStoreId);
+        await refreshControlTowerDetail(
+          sessionPayload.stores[0]?.id ?? selectedStoreId,
+          defaultSnapshot || selectedSnapshot
+        );
       } catch (bootstrapError) {
         if (active) setError(bootstrapError.message);
       } finally {
@@ -183,6 +342,11 @@ export default function PrototypeApp({
   }, [refreshAudit, selectedStoreId]);
 
   useEffect(() => {
+    if (!selectedStoreId || !selectedSnapshot) return;
+    refreshControlTowerDetail(selectedStoreId, selectedSnapshot).catch(() => {});
+  }, [refreshControlTowerDetail, selectedSnapshot, selectedStoreId]);
+
+  useEffect(() => {
     const events = new EventSource("/api/events");
     events.onmessage = (message) => {
       const event = JSON.parse(message.data);
@@ -196,15 +360,32 @@ export default function PrototypeApp({
           "price.updated",
           "calibration.recorded",
           "import.completed",
+          "aggregation.completed",
+          "agent.completed",
+          "model_run.updated",
+          "proposal.updated",
+          "approval.updated",
+          "execution.updated",
+          "logistics.updated",
+          "procurement.updated",
         ].includes(event.type)
       ) {
         loadCurrentPayload(selectedSnapshot).catch(() => {});
         refreshAudit(selectedStoreId).catch(() => {});
+        refreshControlTowerStores().catch(() => {});
+        refreshControlTowerDetail(selectedStoreId, selectedSnapshot).catch(() => {});
       }
     };
 
     return () => events.close();
-  }, [loadCurrentPayload, refreshAudit, selectedSnapshot, selectedStoreId]);
+  }, [
+    loadCurrentPayload,
+    refreshAudit,
+    refreshControlTowerDetail,
+    refreshControlTowerStores,
+    selectedSnapshot,
+    selectedStoreId,
+  ]);
 
   const recommendations = latestRun?.recommendations ?? [];
   const selectedStoreRecommendations = recommendations.filter(
@@ -366,6 +547,8 @@ export default function PrototypeApp({
     }
     await loadCurrentPayload(selectedSnapshot);
     await refreshAudit(targetStoreId ?? selectedStoreId);
+    await refreshControlTowerStores();
+    await refreshControlTowerDetail(targetStoreId ?? selectedStoreId, selectedSnapshot);
   }
 
   async function handleApprove(recommendation, discountPct) {
@@ -542,8 +725,20 @@ export default function PrototypeApp({
             </select>
           </div>
 
-          <div className="control-group">
-            <label htmlFor="snapshotSelect">Snapshot</label>
+	          <div className="control-group">
+	            <label htmlFor="runtimeSelect">Runtime</label>
+	            <select
+	              id="runtimeSelect"
+	              value={runtimeView}
+	              onChange={(event) => setRuntimeView(event.target.value)}
+	            >
+	              <option value={CONTROL_TOWER_MODE}>Control Tower</option>
+	              <option value={LEGACY_MODE}>Legacy Markdown</option>
+	            </select>
+	          </div>
+
+	          <div className="control-group">
+	            <label htmlFor="snapshotSelect">Snapshot</label>
             <select
               id="snapshotSelect"
               value={selectedSnapshot ?? ""}
@@ -616,7 +811,22 @@ export default function PrototypeApp({
           </section>
         )}
 
-        {!loading && latestRun && (
+	        {!loading && runtimeView === CONTROL_TOWER_MODE && controlTowerDetail && (
+	          <ControlTowerConsole
+	            detail={controlTowerDetail}
+	            stores={stores}
+	            selectedStoreId={selectedStoreId}
+	            session={session}
+	            liveMessage={liveMessage}
+	            onRunAggregation={runAggregation}
+	            onGenerateProposals={generateProposals}
+	            onApprove={handleControlTowerApprove}
+	            onReject={handleControlTowerReject}
+	            onDispatch={handleDispatchTask}
+	          />
+	        )}
+
+	        {!loading && latestRun && runtimeView !== CONTROL_TOWER_MODE && (
           <>
             <section className="metric-grid">
               {metricCards.map((card) => (

@@ -2,355 +2,231 @@
 
 ## Purpose
 
-This document translates the PDF vision into a buildable architecture for the current hackathon repo.
+This document replans SynaptOS around the architecture shown in [Screenshot 2026-04-17 at 01.55.15.png](/Users/nguyenngochoa/Git/gg-hackathon/Screenshot%202026-04-17%20at%2001.55.15.png).
 
 It does two things:
 
-1. Splits the product into `v1`, `v2`, and `v3`.
-2. Defines the system diagram and service boundaries for the hackathon build.
-
-The key constraint is simple: `v1` must remain technically honest. The current repo is a deterministic markdown prototype, not a production retail operating system.
+1. anchors the current repo as the implementation base
+2. defines the target control-tower architecture that the repo should evolve toward
 
 ## Architecture Principles
 
-- Keep `v1` as a single deployable web app.
-- Treat inventory truth and calibration as more important than LLM autonomy.
-- Prefer deterministic decisioning over opaque AI behavior.
-- Preserve a full audit trail for every recommendation and override.
-- Simulate integrations in `v1`; do not fake production readiness.
+- aggregate facts before invoking the model
+- keep execution authority in deterministic guardrails, not the LLM
+- route work as typed execution tasks, not free-text suggestions
+- preserve a full audit trail from source ingestion through executor result
+- keep the next iteration inside a modular monolith
 
 ## Version Split
 
-### `v1` Hackathon Prototype
+### `v2` Current Runtime
 
-Goal:
+The current repo is still a durable markdown prototype:
 
-- Prove the closed loop for markdown operations on seeded data.
+- `Next.js` App Router UI
+- internal APIs under `app/api`
+- `Postgres` persistence
+- deterministic scoring in `lib/prototype-core.js`
+- `SSE` updates
+- approval, labels, calibration, and audit history
 
-Capabilities:
+It does not yet implement:
 
-- CSV-backed inventory and demand context
-- lot derivation and inventory confidence scoring
-- deterministic markdown recommendation engine
-- manager approval for high-risk markdowns
-- virtual shelf-label view
-- calibration and audit workflow
-- simulated impact reporting
-
-Deployment shape:
-
-- one `Next.js` application
-- route handlers as internal API surface
-- CSV file as seed source
-- in-memory approval, label, and calibration state
-
-Out of scope:
-
-- real POS integrations
+- a dedicated data aggregation service
+- an LLM agent runtime
+- logistics routing
 - procurement execution
-- inter-store transfer routing
-- physical E-ink hardware
-- enterprise billing
-- persistent auth and RBAC enforcement
 
-### `v2` Pilot-Ready Retail Overlay
+### `v3` Target Control Tower
 
-Goal:
+The architecture in the image should be treated as the next target state:
 
-- Move from demo loop to pilotable store operations software.
+- multi-source data aggregation
+- agent-generated action proposals
+- deterministic guardrail evaluation
+- route-specific execution branches
+- unified control-tower UI and metrics
 
-New capabilities:
-
-- persistent operational data store
-- store/user auth with enforced RBAC
-- recommendation history and audit persistence
-- scheduled recomputation jobs
-- live update transport via SSE or WebSockets
-- adapter-based POS imports
-- configurable pricing policies per chain and store
-
-Suggested deployment shape:
-
-- still a modular monolith if team size is small
-- `Postgres` instead of CSV-only state
-- background worker for recomputation and sync jobs
-- adapter layer for partner POS ingestion
-
-Still out of scope:
-
-- autonomous supplier purchasing
-- cross-store routing automation
-- external partner monetization APIs
-
-### `v3` Operating System / Network Layer
-
-Goal:
-
-- Expand from markdown control to upstream and downstream retail execution.
-
-New capabilities:
-
-- predictive procurement engine
-- supplier-facing PO workflow
-- inter-store transfer recommendations
-- EOL routing and compliance reporting
-- chain-level policy engine
-- partner API / white-label pricing engine
-- model monitoring and experimentation loops
-
-Suggested deployment shape:
-
-- service-oriented system
-- durable event stream for inventory, pricing, and execution events
-- dedicated services for procurement, routing, reporting, and partner APIs
-
-## Recommended Build Positioning
-
-For this repo, the correct message is:
-
-- `v1` is a markdown decision and execution prototype.
-- `v2` is the first real store-operations product.
-- `v3` is the full SynaptOS platform.
-
-That framing is more defensible than calling the current build a full agentic retail OS.
-
-## `v1` System Diagram
+## Target System Diagram
 
 ```mermaid
-flowchart LR
-    A[Seed CSV Dataset] --> B[Data Loader\nlib/prototype-data.js]
-    B --> C[Normalization + Lot Ledger\nlib/prototype-core.js]
-    C --> D[Recommendation Engine\nrisk scoring + markdown policy]
-    D --> E[Internal API Routes\napp/api/*]
-    E --> F[Prototype UI\ncomponents/PrototypeApp.jsx]
-    F --> G[Approval State\nbrowser session]
-    F --> H[Calibration State\nbrowser session]
-    F --> I[Virtual Shelf Labels\nbrowser session]
-    G --> D
-    H --> C
-    D --> J[Metrics + Audit View]
+flowchart TD
+    subgraph EXT[External Data Signals]
+        W[Weather API]
+        D[Demographic Data]
+        C[Commodity Prices]
+    end
+
+    subgraph INT[Internal Data Sources]
+        P[POS Transactions]
+        I[Inventory Ledger]
+    end
+
+    subgraph CORE[Cognitive Core / Agentic AI]
+        A[Data Aggregator]
+        G[Gemini 2.5 Pro Agent]
+        R[Rule Engine Guardrails]
+    end
+
+    subgraph EXEC[Execution and Logistics]
+        L[Virtual E-ink Display]
+        X[Cross-docking / EOL Routing]
+        Q[Autonomous Procurement]
+        H[Human-in-the-Loop Approval]
+    end
+
+    W --> A
+    D --> A
+    C --> A
+    P --> A
+    I --> A
+    A --> G
+    G --> R
+    R -->|Discount <= 50%| L
+    R -->|Unsaleable| X
+    R -->|Stockout Risk| Q
+    R -->|Discount > 50%| H
 ```
 
-## `v1` Runtime Boundaries
+## Runtime Boundaries
 
-### 1. Presentation Boundary
+### 1. Data Source Boundary
 
-Responsibility:
+Owns:
 
-- render HQ, store ops, approval queue, label wall, and audit views
+- inbound source records
+- source freshness and provenance
+- external signal fixtures or adapters
 
-Current implementation:
+Current form:
 
-- `app/page.jsx`
-- `components/PrototypeApp.jsx`
+- baseline CSV import in `lib/prototype-data.js`
+- persisted operational records in `lib/server/prototype-store.js`
 
-Inputs:
+### 2. Aggregation Boundary
 
-- store list
-- snapshots
-- recommendation runs
-- approval decisions
-- calibration entries
+Owns:
 
-Outputs:
+- normalized store snapshots
+- source reconciliation
+- inventory, pricing, stockout, and unsaleable context bundles
 
-- approve or reject recommendation
-- trigger rerun with current state
-- display updated labels and metrics
+Current form:
 
-### 2. API Boundary
+- partially implicit across `lib/prototype-data.js`, `lib/prototype-core.js`, and `lib/server/prototype-store.js`
 
-Responsibility:
+Target evolution:
 
-- provide a stable internal contract between UI and engine
+- explicit `aggregation` module and APIs
 
-Current implementation:
+### 3. Agent Boundary
 
-- `app/api/stores/route.js`
-- `app/api/snapshots/route.js`
-- `app/api/recommendations/run/route.js`
+Owns:
 
-Notes:
+- model invocation
+- structured proposal generation
+- rationale summarization
 
-- this is not yet a public API surface
-- in `v1`, these routes are thin wrappers over local modules
+Does not own:
 
-### 3. Data Ingestion Boundary
+- policy enforcement
+- direct execution
 
-Responsibility:
+Target evolution:
 
-- load and normalize the baseline dataset
-- expose stores and snapshots usable by the app
+- provider-neutral interface with `Gemini 2.5 Pro` as the first configured model
 
-Current implementation:
+### 4. Guardrail Boundary
 
-- `lib/prototype-data.js`
+Owns:
 
-Source of truth in `v1`:
+- discount thresholds
+- margin floors
+- source freshness requirements
+- procurement and logistics eligibility rules
 
-- `SynaptOS_Data - SynaptOS_Baseline_Final_v4.csv`
+Does not own:
 
-Future evolution:
+- prompt engineering
+- UI rendering
 
-- replace with POS adapter imports and persisted inventory events
+Target evolution:
 
-### 4. Inventory Ledger Boundary
+- explicit rule engine that converts proposals into approvals, blocks, or dispatchable tasks
 
-Responsibility:
+### 5. Execution Boundary
 
-- derive lot-level state from imported rows
-- estimate quantity on hand
-- maintain confidence score
-- absorb manager calibration
+Owns:
 
-Current implementation:
+- label publication
+- logistics task creation
+- procurement order creation
+- approval workflow state
 
-- `lib/prototype-core.js`
+Current form:
 
-Why it matters:
+- labels and approvals exist in the current app
 
-- this is the real core of the product
-- markdown logic is only as good as the ledger and calibration loop
+Target evolution:
 
-### 5. Decision Engine Boundary
+- add route-specific execution records and workers inside the monolith
 
-Responsibility:
+### 6. Control Tower Boundary
 
-- calculate risk score
-- choose markdown band
-- flag cases requiring manager review
-- produce outputs suitable for labels and metrics
+Owns:
 
-Current implementation:
+- source freshness visibility
+- proposal queue
+- approval queue
+- logistics and procurement worklists
+- audit and impact metrics
 
-- `lib/prototype-core.js`
+Current form:
 
-Decision style:
+- current dashboard in `components/PrototypeApp.jsx`
 
-- deterministic scoring
-- no autonomous free-text reasoning
-- explicit guardrails around discount size and confidence
+Target evolution:
 
-### 6. Execution Boundary
+- multi-queue operational UI with stage-level visibility
 
-Responsibility:
+## Recommended Internal Module Split
 
-- convert approved decisions into current selling prices for the prototype
-- reflect price changes in the shelf-label view
+Keep the deployment monolithic, but split code ownership internally:
 
-Current implementation:
+- `lib/server/aggregation/*`
+- `lib/server/agent/*`
+- `lib/server/rules/*`
+- `lib/server/execution/*`
+- `lib/server/metrics/*`
+- `app/api/aggregation/*`
+- `app/api/proposals/*`
+- `app/api/execution/*`
 
-- browser-session state inside the prototype UI
+## Sequence Recommendation
 
-Important limitation:
+1. materialize the aggregation boundary first
+2. add structured agent proposals second
+3. add deterministic guardrail evaluation third
+4. add route-specific executors and UI queues last
 
-- there is no POS writeback in `v1`
-- execution means internal state change plus UI propagation only
+This sequence is important because the control-tower model fails if the agent is introduced before the state model and execution constraints are explicit.
 
-### 7. Audit and Metrics Boundary
+## Explicit Non-Goals For The Next Iteration
 
-Responsibility:
+Do not claim:
 
-- show recommendation outcomes
-- expose rescued GMV and waste-avoidance style metrics
-- retain visible evidence of overrides and calibrations
-
-Current implementation:
-
-- derived in `lib/prototype-core.js`
-- rendered in the prototype UI
-
-## `v1` Service Boundary Table
-
-| Boundary | Owns | Does Not Own | Current Form | `v2` Evolution |
-| --- | --- | --- | --- | --- |
-| Presentation | dashboard, queue, labels, audit screens | pricing logic, ingestion | React UI | richer role-aware app shell |
-| API | internal request/response contract | business state persistence | Next route handlers | stable internal service API |
-| Ingestion | CSV parsing, snapshot exposure | partner sync scheduling | local module | adapter layer + import jobs |
-| Inventory Ledger | lot derivation, confidence, calibration effects | supplier purchasing | local module | persisted inventory event model |
-| Decision Engine | markdown policy and guardrails | UI rendering | local module | configurable policy service |
-| Execution | effective prototype price state | physical shelf devices, POS writeback | client state | persisted execution records + live events |
-| Audit/Metrics | impact summaries and evidence trail | accounting system of record | derived view state | durable audit log + reporting tables |
-
-## Recommended `v1` Monolith Module Map
-
-Even though `v1` ships as one app, the code should conceptually stay split like this:
-
-- `ui/`
-  - screens, charts, role views
-- `api/`
-  - route handlers and request validation
-- `ingestion/`
-  - dataset loading and normalization
-- `ledger/`
-  - lot state, confidence, calibration
-- `decisioning/`
-  - risk scoring and markdown recommendation
-- `execution/`
-  - effective price state and label projection
-- `reporting/`
-  - metrics, rescued GMV, audit summaries
-
-In the current repo, these boundaries are mostly compressed into:
-
-- UI: `components/PrototypeApp.jsx`
-- API: `app/api/*`
-- ingestion + ledger + decisioning + reporting: `lib/prototype-data.js`, `lib/prototype-core.js`
-
-## `v2` Target Decomposition
-
-When the hackathon build graduates, split the monolith internally before splitting deployment:
-
-```mermaid
-flowchart LR
-    A[POS Adapters] --> B[Ingestion Jobs]
-    X[Weather and Macro Feeds] --> B
-    B --> C[Postgres]
-    C --> D[Inventory Ledger Service]
-    D --> E[Decision Engine Service]
-    E --> F[Approval and Execution Service]
-    F --> G[Realtime Event Stream]
-    G --> H[Ops Web App]
-    C --> I[Audit and Metrics Service]
-```
-
-The sequence matters:
-
-1. Persist state first.
-2. Add jobs and live updates second.
-3. Add external integrations third.
-
-## `v3` Platform Boundaries
-
-Only split into separate deployed services when the product scope actually demands it:
-
-- `pricing service`
-- `inventory ledger service`
-- `procurement service`
-- `routing service`
-- `partner API service`
-- `reporting and compliance service`
-
-If those boundaries are introduced too early, the team will spend the hackathon on infrastructure instead of the product loop.
-
-## Explicit Non-Goals For The Hackathon Build
-
-The hackathon build should not claim to implement:
-
-- autonomous PO submission to suppliers
-- production-grade inter-store logistics routing
-- physical smart-label integrations
-- multi-tenant enterprise controls
-- full forecast modeling or MLOps
-- public white-label APIs
+- direct supplier submission from day one
+- production WMS or ERP integrations
+- physical E-ink hardware integration
+- independent microservices before the pipeline is proven
+- unconstrained autonomous execution by the model
 
 ## Build Recommendation
 
-For this repo, the best architecture decision is:
+For this repo, the architecture decision is:
 
-- keep `v1` as a modular monolith
-- harden the ledger and recommendation boundaries
-- add persistence before adding more AI
-- treat procurement, routing, and partner APIs as `v2+`
-
-That gives the team a coherent demo now and a believable path beyond the hackathon.
+- preserve the current `v2` monolith as the implementation base
+- add an explicit aggregation layer
+- let the model generate structured proposals only
+- keep all execution decisions in the rule engine
+- expand beyond markdown into logistics and procurement through typed internal tasks

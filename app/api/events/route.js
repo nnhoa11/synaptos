@@ -9,7 +9,9 @@ export async function GET() {
   const stream = new ReadableStream({
     start(controller) {
       const send = (event) => {
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify(event)}\n\n`));
+        controller.enqueue(
+          encoder.encode(`event: ${event.type ?? "message"}\ndata: ${JSON.stringify(event)}\n\n`)
+        );
       };
 
       send({

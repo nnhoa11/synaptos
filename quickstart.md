@@ -1,24 +1,60 @@
-# SynaptOS Prototype Quickstart
+# SynaptOS LLM-Integrated Control-Tower Quickstart
 
 ## Goal
 
-Stand up a demoable prototype that proves the core SynaptOS loop:
+Stand up the architecture so the demo proves this loop:
 
-1. load perishable inventory and context
-2. generate markdown recommendations
-3. review high-risk recommendations
-4. publish approved prices to virtual shelf labels
-5. measure rescued GMV
+1. ingest external and internal signals
+2. aggregate them into one store snapshot
+3. invoke a real LLM provider against that snapshot
+4. parse structured proposals
+5. enforce deterministic guardrails before execution
+6. route approved work to labels, logistics, procurement, or human approval
 
-## Current Stack
+## Current Foundation
+
+The existing repo already provides:
 
 - `Next.js` App Router
 - `React`
-- CSS via `app/globals.css`
-- CSV-backed server data loading
-- In-memory approvals, labels, and calibration state for the prototype
+- `Postgres` persistence via `pg`
+- cookie-backed RBAC sessions
+- `SSE` updates
+- baseline CSV import and current inventory logic
+- additive `legacy` and `control_tower` UI/runtime paths
 
-## Run It
+## Required Environment
+
+Start with the local database:
+
+```bash
+docker compose -f docker-compose.postgres.yml up -d
+```
+
+Then provide at least one provider key:
+
+```bash
+export OPENAI_API_KEY="sk-..."
+export GEMINI_API_KEY="..."
+export LLM_PROVIDER="openai"
+export LLM_MODEL="gpt-5.4"
+export LLM_MODE="shadow"
+export LLM_TIMEOUT_MS="15000"
+export LLM_MAX_RETRIES="2"
+```
+
+If a provider key is absent, the runtime should either:
+
+- refuse live model runs with a clear error, or
+- fall back to `mock` provider mode for local development
+
+Current implementation behavior:
+
+- `shadow` and `assisted` modes can fall back to `mock` when the selected provider is not configured
+- `live` mode surfaces a provider configuration failure instead of silently downgrading
+- retry, timeout, and rate-limit metadata are persisted into the model-run detail surface
+
+## Run The App
 
 ```bash
 npm install
@@ -27,83 +63,82 @@ npm run dev
 
 Open `http://127.0.0.1:3000`.
 
-## Build Sequence
+## Recommended Build Sequence
 
-### 1. App Shell
+### 1. Aggregation Foundation
 
-- `app/page.jsx` renders the prototype shell.
-- `components/PrototypeApp.jsx` contains the interactive dashboard.
-- `app/api/recommendations/run/route.js` computes the engine result for the selected snapshot.
+- keep aggregation deterministic and replayable
+- materialize `AggregationRun`, `SignalObservation`, and `AggregatedSnapshot`
+- expose `POST /api/aggregation/run`
 
-### 2. Data Layer
+### 2. LLM Gateway
 
-- `lib/prototype-data.js` reads the baseline CSV from the project root.
-- `lib/prototype-core.js` normalizes rows, derives lots, and computes recommendations.
-- The baseline dataset drives 3 stores:
-  - premium urban
-  - residential
-  - transit
+- add `lib/server/agent/providers/*`
+- implement provider adapters for at least one real provider plus `mock`
+- isolate auth, retries, rate-limit handling, and response normalization inside the provider boundary
 
-### 3. Scoring Engine
+### 3. Prompting and Structured Output
 
-- Compute:
-  - hours to expiry
-  - stock pressure
-  - sales velocity gap
-  - store-context modifier
-  - weather modifier
-- Output:
-  - hold
-  - mild markdown
-  - moderate markdown
-  - aggressive markdown
-  - manager review required
+- add prompt template versioning
+- build prompts from aggregated snapshots, not raw tables
+- require strict structured response parsing into `ActionProposal[]`
+- persist raw and parsed model artifacts
 
-### 4. Operations UI
+### 4. Guardrail Engine
 
-- HQ overview
-- store operations board
-- approval queue
-- shelf label wall
-- calibration and audit view
+- keep guardrails deterministic and post-model
+- encode discount, margin, freshness, and procurement spend policies
+- create approval requests for markdowns above threshold
 
-Use the UI expectations in [contracts/ui-contract.md](/Users/nguyenngochoa/Git/gg-hackathon/contracts/ui-contract.md).
+### 5. Route-Specific Executors
 
-### 5. Execution Layer
+- `label` for low-risk markdowns
+- `approval` for high-risk markdown review
+- `logistics` for cross-dock or EOL routing
+- `procurement` for stockout-risk replenishment
 
-- The prototype keeps approval, calibration, and label state in the client.
-- `labels` are recalculated after each run from the current adjustment state.
-- The implemented read/compute endpoints are:
-  - `GET /api/stores`
-  - `GET /api/snapshots`
-  - `POST /api/recommendations/run`
+### 6. Control-Tower UI
 
-### 6. Reporting
-
-- rescued GMV
-- units cleared before expiry
-- markdown count
-- overrides
-- estimated waste avoided
+- add model run visibility
+- show provider, model, parse status, and rollout mode
+- keep audit and simulation labels visible end to end
 
 ## Demo Script
 
-### Premium Urban
+### Shadow Mode
 
-- Show a lightly discounted organic item near lunch.
+- run aggregation for one store
+- run the LLM in `shadow` mode
+- inspect the model run, prompt version, and structured proposals
+- show that deterministic guardrails still decide what is executable
+- confirm the UI shows retry count, timeout status, and rate-limit state for the latest model run
 
-### Residential
+### Low-Risk Markdown
 
-- Show earlier markdown on family-pack chicken because sell-through is lagging.
+- demonstrate a markdown proposal at or below the threshold
+- show guardrails approving it
+- show the label route dispatching
 
-### Transit
+### High-Risk Markdown
 
-- Hold cold-drink prices during heat-driven demand, then trigger late flash markdown.
+- demonstrate a proposal above the threshold
+- show approval queue entry
+- approve or reject and show the resulting state
+
+### Unsaleable Routing
+
+- demonstrate a lot that routes to logistics
+- show simulated route creation and audit history
+
+### Stockout Procurement
+
+- demonstrate a stockout-risk case
+- show bounded procurement task creation and simulation labels
 
 ## Done Criteria
 
-- recommendations can be generated on demand
-- manager approval changes the effective price
-- shelf-label view updates from the effective price
-- the system logs all actions
-- the report shows measurable simulated impact
+- aggregation, model run, proposal, guardrail, and execution are separate persisted stages
+- model runs are replayable and auditable
+- deterministic guardrails remain the execution authority
+- simulated integrations remain visibly marked
+- the UI exposes stage status and model-run state end to end

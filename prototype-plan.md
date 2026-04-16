@@ -1,88 +1,97 @@
-# SynaptOS Prototype Plan
+# SynaptOS Control-Tower Plan
 
 ## Planning Metadata
 
 - Planning workflow: `bb-plan`
 - Workspace root: `/Users/nguyenngochoa/Git/gg-hackathon`
 - Feature directory: `/Users/nguyenngochoa/Git/gg-hackathon`
-- Branch: `NO_GIT_REPOSITORY`
+- Branch: `main`
 - Source spec inputs:
+  - [Screenshot 2026-04-17 at 01.55.15.png](/Users/nguyenngochoa/Git/gg-hackathon/Screenshot%202026-04-17%20at%2001.55.15.png)
+  - [hackathon-architecture.md](/Users/nguyenngochoa/Git/gg-hackathon/hackathon-architecture.md)
+  - [docs/system-reference.md](/Users/nguyenngochoa/Git/gg-hackathon/docs/system-reference.md)
   - `GDGoC_SynaptOS_Pitch_Deck (1).pdf`
   - `GDGoC_SynaptOS_Business_Proposal_01.pdf`
 - Existing plan template: unavailable in workspace
 - `constitution.md`: unavailable
 - BuildBetter artifacts: unavailable
 
-This plan treats the two PDFs as the authoritative feature brief because the workspace does not contain a git-backed feature branch, copied plan template, or BuildBetter spec folder.
+This plan treats the architecture diagram in the screenshot plus the current `v2` runtime docs as the active feature brief. There is no branch-specific spec directory or copied BuildBetter template in the workspace.
 
 ## Source Synthesis
 
-Both PDFs point to the same core product thesis:
+The diagram changes the target architecture in a material way:
 
-- SynaptOS is an agentic operating layer for fresh-food retailers.
-- It overlays existing POS systems instead of replacing them.
-- Its first commercial wedge is perishable markdown optimization.
-- The first credible delivery milestone is a 3-5 store pilot that proves waste reduction and rescued GMV.
+1. External data signals and internal retail records both flow into a shared `Data Aggregator`.
+2. A frontier agent, labeled `Gemini 2.5 Pro Agent`, proposes actions from the aggregated state.
+3. A deterministic `Rule Engine Guardrails` layer decides whether the proposal may execute automatically, must be routed elsewhere, or needs human review.
+4. Execution is no longer markdown-only. The system branches into:
+   - `Virtual E-ink Display` for discounts `<= 50%`
+   - `Cross-docking / EOL Routing` for unsaleable inventory
+   - `Autonomous Procurement` for stockout risk
+   - `Human-in-the-Loop Approval` for discounts `> 50%`
 
-The strongest overlap across the proposal and deck reduces to four prototype pillars:
+The current repo already has three foundations that should be preserved:
 
-1. Perishable inventory visibility by lot and expiry.
-2. Deterministic markdown recommendations using store context.
-3. Human-in-the-loop approval for risky price changes.
-4. Virtual shelf-label propagation and impact reporting.
+- a modular monolith in `Next.js`
+- a durable `Postgres` runtime store
+- live UI refresh over `SSE`
+
+The replan therefore shifts SynaptOS from a deterministic markdown engine into a bounded retail control tower built on top of the existing monolith.
 
 ## Technical Context
 
 ### Product Goal
 
-Build a prototype that demonstrates this closed loop:
+Build the next SynaptOS architecture around this closed loop:
 
-1. Ingest mock POS sales and perishable inventory data.
-2. Detect lots at risk of spoilage.
-3. Recommend markdown actions using expiry, velocity, and store context.
-4. Route high-risk discounts through a manager approval queue.
-5. Publish approved prices to a virtual shelf-label interface.
-6. Measure rescued GMV, waste risk, and operator overrides.
+1. ingest external and internal retail signals
+2. normalize them into one aggregated store snapshot
+3. let an agent generate typed action proposals
+4. enforce deterministic business guardrails before execution
+5. route each approved proposal to the correct execution surface
+6. emit auditable events, operator context, and downstream metrics
 
 ### Technical Decisions
 
-- Frontend: `Next.js` + `TypeScript` + `Tailwind CSS`
-- Backend: Next.js route handlers
-- Persistence: `SQLite` via `Prisma`
-- Realtime transport: Server-Sent Events preferred for simplicity; WebSockets acceptable if already available
-- Charts: `Recharts`
-- Auth: demo-only role switcher
-- Decision engine: deterministic scoring engine first
-- AI usage: optional schema-bound explanation layer only, not autonomous execution
+- Frontend: `Next.js` App Router + `React`
+- Backend: Next.js route handlers plus internal worker-style orchestration inside the monolith
+- Persistence: `Postgres` via the existing `pg`-backed store
+- Realtime transport: `Server-Sent Events`
+- Agent runtime: provider-neutral orchestration interface with `Gemini 2.5 Pro` as the initial target model from the diagram
+- Core decision pattern: `data aggregator -> agent proposal -> deterministic rule engine -> typed executor`
+- Execution style: simulated downstream writes first, with internal records standing in for live procurement, routing, and label systems
+- Auditability: every aggregation run, proposal, guardrail decision, approval, and execution task is persisted
 
 ### Resolved Clarifications
 
-- Live POS integration: out of scope for prototype, replaced with seeded CSV/JSON imports.
-- Virtual E-ink labels: implemented as a UI surface, not physical hardware.
-- Procurement and logistics routing: roadmap only, not prototype scope.
-- Enterprise billing and partner APIs: out of scope.
-- Pilot geography: simulated HCMC store archetypes only.
+- The model named in the diagram is preserved in planning, but the orchestration boundary remains provider-neutral so the system is not hard-coupled to a single LLM vendor.
+- `Autonomous procurement` is implemented first as bounded purchase-order creation inside SynaptOS, not direct supplier submission.
+- `Cross-docking / EOL routing` is implemented first as a generated logistics task, not a live WMS integration.
+- `Virtual E-ink display` remains a software execution surface before any hardware integration.
+- Discounts greater than `50%` cannot auto-execute and must enter an approval queue.
 
 ## Constitution Check
 
 ### Pre-Design Check
 
-- `constitution.md` was not found in the project root or a `docs/` directory.
-- There are no enforceable project-level constitutional gates available in this workspace.
-- Planning therefore uses explicit local constraints instead:
-  - keep scope to a hackathon-feasible prototype
-  - prefer deterministic logic over opaque AI behavior
-  - avoid fake integrations that would imply production readiness
-  - preserve auditability of all decisions
+- `constitution.md` was not found in the project root or `docs/`.
+- There are no enforceable project-level constitutional gates in this workspace.
+- Local planning constraints therefore apply:
+  - keep the system honest about simulated versus real integrations
+  - aggregate facts before invoking the agent
+  - keep deterministic policy enforcement outside the model
+  - require auditability for every execution route
+  - preserve a modular monolith until scale forces service splits
 
 ### Post-Design Check
 
-The design still satisfies the local constraints:
+The revised design satisfies those constraints:
 
-- Scope remains restricted to a Phase 1 prototype.
-- Recommendation logic is transparent and testable.
-- All key actions are logged and reviewable.
-- External integrations remain mocked rather than overstated.
+- model output cannot bypass the rule engine
+- downstream integrations are planned as typed executors with simulated first implementations
+- audit and replay remain first-class
+- the deployment shape stays monolithic for the next implementation phase
 
 ## BuildBetter Context
 
@@ -92,505 +101,417 @@ No BuildBetter evidence artifacts were present:
 - `buildbetter-context.json`: unavailable
 - `user-stories.md`: unavailable
 
-As a substitute, the planning evidence comes directly from the two PDFs. Product taxonomy and affected customers are therefore inferred from the source material:
+Planning evidence is therefore inferred from the image and current repository state:
 
-- Product area: retail operations intelligence
+- Product area: retail operations control tower
 - Domain: fresh-food grocery operations
-- Primary customer: chain HQ / store operations for modern grocery retailers
-- Secondary users: store managers and staff
-- Business outcome: reduce spoilage, recover perishable GMV, create audit-ready waste reporting
-
-## Prototype North Star
-
-At the end of the prototype, a judge or pilot retailer should be able to see:
-
-- A store dashboard with expiring lots and current risk.
-- A recommendation engine proposing markdown actions.
-- A manager approval step for high-risk discounts.
-- A live price update reflected in a shelf-label screen.
-- A simple report showing waste avoided and revenue recovered in the simulation.
-
-## Prototype Scope
-
-### In Scope
-
-- Multi-store demo dataset with 3 archetypes:
-  - Premium urban
-  - Transit / walking street
-  - Residential / suburban
-- Perishable SKU inventory with:
-  - SKU
-  - lot / batch
-  - expiry date-time
-  - current stock
-  - cost
-  - base price
-  - active price
-  - recent sales velocity
-- Mock external signals:
-  - weather
-  - district profile
-  - time-of-day window
-- Markdown recommendation engine
-- Manager approval workflow
-- Virtual shelf-label UI
-- Audit log of all recommendation and execution events
-- Simple reporting:
-  - rescued GMV
-  - markdown count
-  - waste risk reduced
-  - approval rate
-- End-of-day shrinkage calibration
-
-### Out of Scope
-
-- Real POS integrations with KiotViet, MISA, or other vendors
-- Autonomous procurement execution to suppliers
-- Inter-store transfer routing
-- Physical E-ink hardware
-- Enterprise billing, subscriptions, and partner APIs
-- Multi-country deployment
-- Full production-grade forecasting
+- Primary customer: chain operations leadership
+- Secondary users: store managers, procurement planners, logistics operators
+- Business outcome: reduce waste, recover margin, prevent stockouts, and preserve governance
 
 ## Research Summary
 
-Detailed Phase 0 findings are captured in [research.md](/Users/nguyenngochoa/Git/gg-hackathon/research.md). The key decisions are:
+Detailed Phase 0 findings are captured in [research.md](/Users/nguyenngochoa/Git/gg-hackathon/research.md). The key conclusions are:
 
-1. Use a deterministic scoring engine rather than an autonomous LLM core.
-2. Simulate POS and external signals using seeded data.
-3. Prefer a single-stack web prototype to minimize integration cost.
-4. Make manager approval and auditability first-class features.
-5. Treat procurement, routing, and partner APIs as future-phase extensions.
+1. Introduce a fact-normalizing aggregation layer before any agent reasoning.
+2. Keep `Gemini 2.5 Pro` as the initial reasoning target but hide it behind a provider-neutral interface.
+3. Move all execution authority into a deterministic guardrail engine.
+4. Represent the four execution branches as typed tasks, not ad hoc side effects.
+5. Build the target architecture inside the current monolith first, then split services only if adoption justifies it.
 
-## System Architecture
+## Replanned Architecture
 
-### 1. Ingestion Layer
+### 1. Data Sources
 
-Inputs:
+External signals:
 
-- POS sales events
-- inventory snapshots
-- per-lot expiry metadata
-- district/store metadata
-- weather signal feed
+- `Weather API`
+- `Demographic Data`
+- `Commodity Prices`
 
-Prototype approach:
+Internal signals:
 
-- Use CSV or JSON imports instead of live POS integrations.
-- Seed the app with 3 stores and 15-30 SKUs.
-- Run a scheduled sync every 5 minutes to simulate live operations.
+- `POS Transactions`
+- `Inventory Ledger`
 
-### 2. Decision Engine
+Prototype implementation approach:
 
-Core job:
+- continue importing seeded baseline data for internal records
+- simulate external feeds through scheduled pulls or fixture tables
+- record freshness, provenance, and confidence for every source
 
-- score spoilage risk
-- estimate sell-through probability
-- recommend a markdown band
+### 2. Data Aggregator
 
-Inputs:
+Responsibilities:
 
-- hours to expiry
-- current stock
-- recent sales velocity
-- item margin floor
-- store archetype
-- time-of-day window
-- weather condition
+- normalize source data into one store-scoped snapshot
+- reconcile timing differences between feeds
+- calculate source freshness and confidence
+- expose a single typed payload to the agent
 
 Outputs:
 
-- hold price
-- mild markdown
-- moderate markdown
-- aggressive markdown
-- manager review required
+- lot risk context
+- pricing context
+- stockout context
+- unsaleable inventory flags
+- demand and cost modifiers
+
+### 3. Agent Core
 
-Guardrails:
+Responsibilities:
+
+- consume the aggregated snapshot
+- propose one or more typed actions with structured rationale
+- classify actions into execution routes
+- never execute directly
 
-- never price below configured floor
-- require approval above 50% discount
-- block execution if inventory confidence is low
-- log all rejected and overridden recommendations
+Proposal classes:
 
-### 3. Execution Layer
+- `markdown_auto_candidate`
+- `markdown_review_candidate`
+- `unsaleable_route_candidate`
+- `procurement_candidate`
 
-Actions:
+### 4. Rule Engine Guardrails
 
-- apply a new active selling price
-- update virtual shelf label
-- log action event
+Responsibilities:
 
-Prototype execution:
+- validate every proposal against deterministic policy
+- cap discounts, procurement spend, and route eligibility
+- block low-confidence or contradictory actions
+- decide auto-execute versus approval required
 
-- No actual POS writeback.
-- The system writes to an internal `ActivePrice` record and pushes that to the UI.
+Core rules:
 
-### 4. Calibration Layer
+- discount `<= 50%` may publish to the label executor when confidence and margin floors pass
+- discount `> 50%` must create a human approval request
+- unsaleable inventory may only route to approved logistics dispositions
+- stockout procurement may only create bounded purchase actions for approved SKUs and suppliers
 
-End-of-day manager input:
+### 5. Execution and Logistics Layer
 
-- stolen / damaged units
-- spoiled units
-- stock discrepancy notes
+Executors:
 
-Purpose:
+- `Virtual E-ink Display`
+- `Cross-docking / EOL Routing`
+- `Autonomous Procurement`
+- `Human-in-the-Loop Approval`
 
-- reduce phantom inventory
-- explain bad recommendations
-- improve confidence scoring in the next run
+Execution principle:
 
-### 5. Reporting Layer
+- every executor consumes a typed task emitted by the rule engine
+- each executor writes a status event and can be replayed or retried independently
 
-Show:
+### 6. Control Tower and Eventing
 
-- lots saved from expiry
-- estimated rescued GMV
-- markdown effectiveness
-- actions by store
-- approval and rejection counts
+Responsibilities:
 
-## User Roles
+- surface source freshness, agent output, and guardrail decisions
+- show pending approvals and execution backlog
+- stream live updates to the UI
+- expose audit and impact metrics by route
 
-### Staff / Cashier
+## Architecture Diagram
 
-- Read-only access
-- Can view prices and stock status
-- Cannot approve or change recommendations
+```mermaid
+flowchart TD
+    subgraph EXT[External Data Signals]
+        W[Weather API]
+        D[Demographic Data]
+        C[Commodity Prices]
+    end
 
-### Store Manager
+    subgraph INT[Internal Data Sources]
+        P[POS Transactions]
+        I[Inventory Ledger]
+    end
 
-- Can review recommendations
-- Must approve high-risk markdowns
-- Can enter shrinkage and spoilage corrections
+    subgraph CORE[Cognitive Core / Agentic AI]
+        A[Data Aggregator]
+        G[Gemini 2.5 Pro Agent]
+        R[Rule Engine Guardrails]
+    end
 
-### HQ Admin
+    subgraph EXEC[Execution and Logistics]
+        L[Virtual E-ink Display]
+        X[Cross-docking / EOL Routing]
+        Q[Autonomous Procurement]
+        H[Human-in-the-Loop Approval]
+    end
 
-- Can configure thresholds
-- Can compare stores
-- Can view aggregate impact and audit logs
+    W --> A
+    D --> A
+    C --> A
+    P --> A
+    I --> A
+    A --> G
+    G --> R
+    R -->|Discount <= 50%| L
+    R -->|Unsaleable| X
+    R -->|Stockout Risk| Q
+    R -->|Discount > 50%| H
+```
 
-## Functional Requirements
+## Module Mapping To The Current Repo
 
-### A. Inventory and Expiry Tracking
+The target architecture should build on the current modules as follows:
 
-- Store each lot with expiry date-time.
-- Show risk color states:
-  - green: safe
-  - amber: action soon
-  - red: urgent
-- Surface hours-to-expiry in all operational views.
+- Aggregation foundation: extend [lib/server/prototype-store.js](/Users/nguyenngochoa/Git/gg-hackathon/lib/server/prototype-store.js) and [lib/prototype-data.js](/Users/nguyenngochoa/Git/gg-hackathon/lib/prototype-data.js)
+- Existing decision logic to be superseded by aggregator and guardrail modules: [lib/prototype-core.js](/Users/nguyenngochoa/Git/gg-hackathon/lib/prototype-core.js)
+- Control tower APIs: extend `app/api/*`
+- Live update transport: retain [lib/server/events.js](/Users/nguyenngochoa/Git/gg-hackathon/lib/server/events.js)
+- Operator UX base: evolve [components/PrototypeApp.jsx](/Users/nguyenngochoa/Git/gg-hackathon/components/PrototypeApp.jsx)
 
-### B. Dynamic Pricing Recommendations
+## Phase Plan
 
-- Run a recommendation loop on a schedule.
-- Generate a markdown recommendation per risky lot.
-- Explain the recommendation using structured factors:
-  - expiry urgency
-  - low sales velocity
-  - weather-driven opportunity
-  - district strategy
+### Phase 0. Research and Boundaries
 
-### C. Approval Workflow
+Status:
 
-- Discounts under threshold can auto-apply in demo mode.
-- Discounts over threshold move to a manager queue.
-- Manager can approve, reject, or edit the discount.
-
-### D. Virtual Shelf Labels
-
-- Show current and previous price.
-- Animate updated labels when a price changes.
-- Filter by store and category.
-
-### E. Analytics
-
-- Daily rescued GMV
-- units cleared before expiry
-- average markdown depth
-- decision-to-sale conversion
-- number of overridden recommendations
-
-### F. Calibration
-
-- Manager can enter end-of-day discrepancy counts.
-- System recalculates confidence score.
-- Dashboard highlights low-confidence SKUs in the next cycle.
-
-## Data Model
-
-The detailed entity design is documented in [data-model.md](/Users/nguyenngochoa/Git/gg-hackathon/data-model.md).
-
-Core entities:
-
-- `Store`
-- `StoreProfile`
-- `User`
-- `Sku`
-- `InventoryLot`
-- `SalesEvent`
-- `DemandSignal`
-- `RecommendationRun`
-- `PriceRecommendation`
-- `ApprovalDecision`
-- `ActivePrice`
-- `ShelfLabelEvent`
-- `CalibrationEntry`
-- `ImpactMetric`
-
-## Interface Contracts
-
-Prototype interface definitions are documented in:
-
-- [contracts/api-contract.md](/Users/nguyenngochoa/Git/gg-hackathon/contracts/api-contract.md)
-- [contracts/ui-contract.md](/Users/nguyenngochoa/Git/gg-hackathon/contracts/ui-contract.md)
-
-These contracts are intentionally lightweight and focused on the internal prototype surface, not external enterprise integrations.
-
-## UI Plan
-
-### Screen 1. HQ Overview
-
-Purpose:
-
-- show health of all stores
-- compare waste risk
-- show rescued GMV trend
-
-Widgets:
-
-- stores at risk
-- total expiring lots today
-- recommended actions pending
-- rescued GMV trend
-
-### Screen 2. Store Operations Board
-
-Purpose:
-
-- live operational view for one store
-
-Widgets:
-
-- expiring SKUs table
-- current active markdowns
-- risk by category
-- sales velocity sparkline
-
-### Screen 3. Approval Queue
-
-Purpose:
-
-- manager review of risky recommendations
-
-Actions:
-
-- approve
-- reject
-- edit markdown
-- add reason
-
-### Screen 4. Shelf Label Wall
-
-Purpose:
-
-- visual proof of price propagation
-
-Features:
-
-- card grid of labels
-- animated change when price updates
-- badge showing why the price changed
-
-### Screen 5. Calibration and Audit
-
-Purpose:
-
-- show enterprise control and anti-hallucination story
-
-Features:
-
-- discrepancy form
-- decision log
-- manual override history
-
-## Demo Storyline
-
-Use one scripted scenario with 3 stores.
-
-### Store A: Premium Urban
-
-- Organic salad with 10 hours left
-- Lunch traffic incoming
-- Recommend mild markdown only
-
-### Store B: Residential
-
-- Family-pack chicken with high stock and 14 hours left
-- Low recent sales
-- Recommend earlier, stronger markdown
-
-### Store C: Transit
-
-- Cold beverages on a hot day
-- Hold price until late afternoon
-- Then trigger flash markdown close to traffic drop-off
-
-This directly reflects the market narrative in the PDFs.
-
-## Implementation Plan
-
-### Phase 0. Research and Scope Lock
+- complete
 
 Deliverables:
 
-- resolved technical assumptions
-- confirmed prototype scope
-- research record
+- final architecture choices
+- guardrail policy assumptions
+- execution-route definitions
 
 Artifacts:
 
 - [research.md](/Users/nguyenngochoa/Git/gg-hackathon/research.md)
 
-Time:
+### Phase 1. Aggregation and Data Model
 
-- 0.5 day
+Status:
 
-### Phase 1. Data Foundation
+- complete
 
 Deliverables:
 
-- database schema
-- seed data for stores, SKUs, lots, and demand signals
-- import scripts for CSV/JSON
+- aggregated snapshot schema
+- action proposal schema
+- execution task schema
+- updated contracts and quickstart
 
 Artifacts:
 
 - [data-model.md](/Users/nguyenngochoa/Git/gg-hackathon/data-model.md)
-
-Time:
-
-- 1 day
-
-### Phase 2. Decision Engine
-
-Deliverables:
-
-- risk scoring function
-- markdown recommendation generator
-- config table for thresholds
-- test cases for representative scenarios
-
-Time:
-
-- 1 to 1.5 days
-
-### Phase 3. Ops Workflows
-
-Deliverables:
-
-- store dashboard
-- approval queue
-- recommendation state transitions
-- audit log
-
-Time:
-
-- 1.5 days
-
-### Phase 4. Live Demo Layer
-
-Deliverables:
-
-- shelf-label wall
-- scheduled job to recompute recommendations
-- live update transport
-- scenario reset button
-
-Time:
-
-- 1 day
-
-### Phase 5. Metrics and Demo Polish
-
-Deliverables:
-
-- rescued GMV report
-- waste avoided report
-- calibration workflow
-- narrative cleanup
-
-Artifacts:
-
+- [contracts/api-contract.md](/Users/nguyenngochoa/Git/gg-hackathon/contracts/api-contract.md)
+- [contracts/ui-contract.md](/Users/nguyenngochoa/Git/gg-hackathon/contracts/ui-contract.md)
 - [quickstart.md](/Users/nguyenngochoa/Git/gg-hackathon/quickstart.md)
 
-Time:
+### Phase 2. Control-Tower Implementation Plan
 
-- 1 day
+Goal:
 
-## Suggested Delivery Order
+- evolve the current `v2` markdown runtime into the new control-tower pipeline without breaking the existing demo loop while new modules are being added
 
-1. Build schema and seed data.
-2. Build recommendation engine in isolation.
-3. Add store dashboard and approval queue.
-4. Add virtual shelf labels.
-5. Add reporting and calibration.
-6. Add optional LLM explanation layer last.
+Execution strategy:
 
-The LLM should not be on the critical path for the prototype.
+- land the new architecture behind additive modules and routes
+- preserve the current deterministic recommendation flow until the new control-tower path is end-to-end functional
+- switch UI surfaces incrementally rather than replacing the app in one pass
 
-## Acceptance Criteria
+Recommended internal module split:
 
-The prototype is complete when all of the following are true:
+- `lib/server/aggregation/*`
+- `lib/server/agent/*`
+- `lib/server/rules/*`
+- `lib/server/execution/*`
+- `lib/server/metrics/*`
+- `app/api/aggregation/*`
+- `app/api/agent/*`
+- `app/api/proposals/*`
+- `app/api/execution/*`
 
-- A seeded dataset loads successfully for 3 stores.
-- Each store shows expiring lots and active prices.
-- The system can generate recommendations from current inventory and context.
-- A manager can approve or reject high-risk recommendations.
-- Approved recommendations update the shelf-label screen.
-- A report shows impact for at least one simulated trading day.
-- Every action is traceable in an audit log.
+#### Workstream 1. Persistence Foundation
 
-## Risks and Mitigations
+Purpose:
 
-### Risk: Prototype becomes too broad
+- extend the existing `Postgres` runtime store so the new pipeline has durable first-class records
 
-Mitigation:
+Current assets to reuse:
 
-- Keep logistics and procurement as mocked roadmap items, not working features.
+- [lib/server/prototype-store.js](/Users/nguyenngochoa/Git/gg-hackathon/lib/server/prototype-store.js)
+- existing tables for stores, inventory, recommendations, approvals, labels, audit, and imports
 
-### Risk: AI appears unreliable
+New responsibilities:
 
-Mitigation:
+- create tables for `signal_observations`, `aggregation_runs`, `aggregated_snapshots`, `agent_runs`, `action_proposals`, `guardrail_evaluations`, `approval_requests`, `execution_tasks`, `logistics_routes`, and `procurement_orders`
+- add store policy columns needed by the rule engine
+- add persistence helpers and repository functions for each new entity
 
-- Use deterministic rules first.
-- If an LLM is added, restrict it to schema-bound explanations or tool-call proposals.
+Acceptance criteria:
 
-### Risk: No real POS integration
+- schema bootstraps cleanly on a fresh database
+- existing app startup still succeeds
+- new entities can be written and queried independently of the old recommendation tables
 
-Mitigation:
+#### Workstream 2. Data Aggregator
 
-- Lean into POS-overlay positioning.
-- Simulate imports and writebacks clearly in the demo.
+Purpose:
 
-### Risk: Weak business proof
+- materialize the `Data Aggregator` boundary that is currently implicit across CSV import, store loading, and deterministic scoring
 
-Mitigation:
+Current assets to reuse:
 
-- Show before/after scenario metrics for waste avoided and recovered GMV.
+- [lib/prototype-data.js](/Users/nguyenngochoa/Git/gg-hackathon/lib/prototype-data.js)
+- parts of [lib/prototype-core.js](/Users/nguyenngochoa/Git/gg-hackathon/lib/prototype-core.js) that already derive lot state, weather pressure, and velocity context
 
-## Open Questions from the PDFs
+Implementation tasks:
 
-These do not block the prototype, but they should be cleaned up before investor-facing use:
+- create `lib/server/aggregation/` modules for source loading, normalization, freshness scoring, and snapshot assembly
+- support seeded internal data plus fixture-backed external feeds
+- expose `POST /api/aggregation/run` and `GET /api/aggregation/runs/:id`
 
-- Gross margin appears as `90%+` in one source and `77%` in another.
-- Revenue projections and MRR/ARR values are not fully consistent across the proposal and pitch deck.
-- Some roadmap items imply procurement and routing automation sooner than a Phase 1 MVP can realistically support.
+Acceptance criteria:
 
-## Recommended Next Step
+- one aggregation run creates a durable `AggregatedSnapshot`
+- source freshness and provenance are visible in persisted output
+- the aggregator can run without invoking the agent
 
-Build around one narrow promise:
+#### Workstream 3. Agent Orchestration
 
-"SynaptOS helps a fresh-food retailer identify expiring stock, recommend the right markdown at the right time, and push that price to the shelf with manager oversight."
+Purpose:
 
-That is the smallest believable version of the product described in both PDFs, and it is enough to demonstrate the thesis, the guardrails, and the commercial value.
+- add a model boundary that produces structured proposals without taking execution authority
+
+Current assets to reuse:
+
+- current recommendation payload shape and lot/risk summaries from `lib/prototype-core.js`
+- current route-handler pattern under `app/api/*`
+
+Implementation tasks:
+
+- create `lib/server/agent/client.js` and `lib/server/agent/orchestrator.js`
+- define strict proposal schemas and validation
+- implement `POST /api/agent/runs`
+- persist `AgentRun` and `ActionProposal` records
+
+Acceptance criteria:
+
+- agent runs are provider-neutral at the call site
+- responses are rejected if they do not match the proposal schema
+- a single aggregated snapshot can produce typed proposals for markdown, approval, logistics, or procurement
+
+#### Workstream 4. Rule Engine Guardrails
+
+Purpose:
+
+- make the deterministic policy layer the sole authority on execution eligibility
+
+Current assets to reuse:
+
+- existing approval threshold concept in stores and recommendation statuses
+- RBAC helpers in [lib/server/auth.js](/Users/nguyenngochoa/Git/gg-hackathon/lib/server/auth.js)
+
+Implementation tasks:
+
+- create `lib/server/rules/evaluate-proposal.js`
+- encode discount thresholds, margin floors, freshness checks, logistics eligibility, and procurement spend caps
+- emit `GuardrailEvaluation` records
+- create `ApprovalRequest` records for discounts `> 50%`
+
+Acceptance criteria:
+
+- no proposal can dispatch without a guardrail decision
+- discounts above threshold always route to approval
+- blocked proposals carry explicit rule matches and explanations
+
+#### Workstream 5. Route-Specific Execution
+
+Purpose:
+
+- replace the old single execution path with typed downstream task dispatch
+
+Current assets to reuse:
+
+- existing label publication concepts and SSE eventing
+- approval decision flow already present in the app
+
+Implementation tasks:
+
+- create `lib/server/execution/label-executor.js`
+- create `lib/server/execution/logistics-executor.js`
+- create `lib/server/execution/procurement-executor.js`
+- create `app/api/execution/tasks/:id/dispatch`
+- persist route-specific outputs such as `LabelDisplayUpdate`, `LogisticsRoute`, and `ProcurementOrder`
+
+Acceptance criteria:
+
+- `discount <= 50%` can publish to labels automatically
+- `discount > 50%` must wait for human approval before dispatch
+- `unsaleable` proposals create logistics tasks
+- `stockout_risk` proposals create procurement orders
+
+#### Workstream 6. Control-Tower UI and Realtime
+
+Purpose:
+
+- evolve the current dashboard into a stage-aware operations console
+
+Current assets to reuse:
+
+- [components/PrototypeApp.jsx](/Users/nguyenngochoa/Git/gg-hackathon/components/PrototypeApp.jsx)
+- [app/api/events/route.js](/Users/nguyenngochoa/Git/gg-hackathon/app/api/events/route.js)
+- [lib/server/events.js](/Users/nguyenngochoa/Git/gg-hackathon/lib/server/events.js)
+
+Implementation tasks:
+
+- add control-tower summary, proposal queue, approval console, logistics workbench, and procurement console views
+- add new SSE event types for aggregation, agent runs, guardrail results, approvals, and executor completions
+- keep the current markdown views live until control-tower views are verified
+
+Acceptance criteria:
+
+- operators can see source freshness, proposal status, and execution state separately
+- approval, logistics, and procurement queues update live
+- the old UI does not regress while the new views land
+
+#### Workstream 7. Verification and Cutover
+
+Purpose:
+
+- prove the new path is correct before making it the primary demo flow
+
+Implementation tasks:
+
+- add unit coverage for aggregation, schema validation, and guardrail decisions
+- add integration coverage for one full route per execution branch
+- prepare seeded scenarios for:
+  - auto markdown
+  - human approval
+  - unsaleable routing
+  - stockout procurement
+
+Acceptance criteria:
+
+- all four execution branches have deterministic demo scenarios
+- audit records exist from aggregation through execution
+- the control-tower path can run end to end without relying on the legacy recommendation route
+
+#### Recommended Delivery Order
+
+1. persistence foundation
+2. data aggregator
+3. agent orchestration
+4. rule engine guardrails
+5. route-specific execution
+6. control-tower UI and realtime
+7. verification and cutover
+
+#### Suggested Demo Cut Line
+
+If time is constrained, the minimum credible release is:
+
+1. aggregation + proposal + rule engine
+2. label auto-execution for discounts `<= 50%`
+3. approval queue for discounts `> 50%`
+4. simulated logistics and procurement task creation without external dispatch
+
+That cut line preserves the architecture truthfully even if procurement and routing remain internal task records in the first implementation wave.
+
+## Agent Context Update
+
+No agent-specific context file such as `AGENTS.md`, `CLAUDE.md`, or `CODEX.md` exists in the workspace, so no additional agent context file was updated.

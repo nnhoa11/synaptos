@@ -2,157 +2,129 @@
 
 ## Overview
 
-SynaptOS is a fresh-food retail markdown operations prototype. The current codebase implements a durable `v2` app that:
+SynaptOS is a modular-monolith retail operations prototype with two runtime paths:
 
-- imports a baseline CSV into a local operational store
-- derives lot-level inventory state
-- computes deterministic markdown recommendations
-- requires manager/admin approval for guarded discounts
-- persists approvals, labels, calibration, runs, imports, and audit events
-- streams live updates to the UI over Server-Sent Events
+- a legacy deterministic markdown workflow
+- a control-tower workflow that aggregates signals, invokes a provider-backed model layer, parses structured proposals, applies deterministic guardrails, and creates typed execution tasks
 
-This is not a full retail operating system. Procurement, routing, external POS writeback, and enterprise integrations are still out of scope.
+The current implementation is still demo-oriented. Logistics, procurement, and external feeds are visible and persisted, but downstream enterprise connectors remain simulated-first.
 
 ## Runtime Shape
 
-The runtime is a modular monolith:
-
-- UI: `Next.js` page + React client app
-- API: Next route handlers under `app/api`
-- Decision engine: deterministic scoring in [lib/prototype-core.js](/Users/nguyenngochoa/Git/gg-hackathon/lib/prototype-core.js)
-- Durable store: PostgreSQL-backed server state in [lib/server/prototype-store.js](/Users/nguyenngochoa/Git/gg-hackathon/lib/server/prototype-store.js)
-- Auth/RBAC: cookie-backed helpers in [lib/server/auth.js](/Users/nguyenngochoa/Git/gg-hackathon/lib/server/auth.js)
-- Eventing: in-process event bus in [lib/server/events.js](/Users/nguyenngochoa/Git/gg-hackathon/lib/server/events.js)
+- UI: `Next.js` App Router + React client
+- API: route handlers under `app/api`
+- Deterministic inventory logic: `lib/prototype-core.js`
+- Aggregation: `lib/server/aggregation/*`
+- Agent layer: `lib/server/agent/*`
+- Deterministic rules: `lib/server/rules/*`
+- Execution: `lib/server/execution/*`
+- Persistence: `lib/server/prototype-store.js`
+- Auth/RBAC: `lib/server/auth.js`
+- Eventing: `lib/server/events.js`
 
 ## Main Modules
 
-### UI
+### Prototype UI
 
 Primary files:
 
-- [app/page.jsx](/Users/nguyenngochoa/Git/gg-hackathon/app/page.jsx)
-- [components/PrototypeApp.jsx](/Users/nguyenngochoa/Git/gg-hackathon/components/PrototypeApp.jsx)
+- `app/page.jsx`
+- `components/PrototypeApp.jsx`
+- `components/ControlTowerConsole.jsx`
 
 Responsibilities:
 
-- render the dashboard tabs
-- fetch session, stores, snapshots, and current run state
-- trigger recommendation runs
-- approve or reject recommendations
-- submit calibration events
-- display labels, metrics, and audit history
-- subscribe to SSE events and refresh visible state
+- render legacy and control-tower runtimes
+- fetch session, stores, snapshots, metrics, audit, and control-tower detail
+- trigger aggregation and model-backed proposal runs
+- review approvals and dispatch execution tasks
+- display model-run detail, audit history, and simulation badges
 
-### Decision Engine
+### Deterministic Core
 
 Primary file:
 
-- [lib/prototype-core.js](/Users/nguyenngochoa/Git/gg-hackathon/lib/prototype-core.js)
+- `lib/prototype-core.js`
 
 Responsibilities:
 
 - parse and normalize CSV rows
-- build stores and snapshots
 - derive lot-level inventory state
-- apply confidence penalties based on calibration
-- compute risk scores and markdown levels
-- derive recommendation status and metrics
+- compute deterministic markdown recommendations and metrics
 
 Important properties:
 
-- deterministic only
-- no free-text AI reasoning
-- approval thresholds are store-specific
-- weather, traffic, stock pressure, and expiry drive scoring
+- remains deterministic
+- continues to power the legacy fallback path
+- provides candidate context for control-tower aggregation
+
+### Control-Tower Agent Layer
+
+Primary files:
+
+- `lib/server/agent/client.js`
+- `lib/server/agent/orchestrator.js`
+- `lib/server/agent/prompt-builder.js`
+- `lib/server/agent/response-parser.js`
+- `lib/server/agent/provider-registry.js`
+- `lib/server/agent/providers/openai.js`
+- `lib/server/agent/providers/gemini.js`
+- `lib/server/agent/providers/mock.js`
+
+Responsibilities:
+
+- build prompt context from `AggregatedSnapshot`
+- resolve provider adapters
+- apply retry and timeout policy
+- parse structured output into proposal candidates
+- persist model input and output artifacts
 
 ### Durable Store
 
 Primary file:
 
-- [lib/server/prototype-store.js](/Users/nguyenngochoa/Git/gg-hackathon/lib/server/prototype-store.js)
+- `lib/server/prototype-store.js`
 
 Responsibilities:
 
 - bootstrap and maintain PostgreSQL schema
-- import the baseline CSV into tables
-- seed users and stores
-- compute current payloads for a snapshot
-- persist recommendation runs and recommendation rows
-- persist decisions, labels, calibration, audit, and imports
-- publish events to the SSE bus
-
-### Auth and RBAC
-
-Primary file:
-
-- [lib/server/auth.js](/Users/nguyenngochoa/Git/gg-hackathon/lib/server/auth.js)
-
-Responsibilities:
-
-- set and clear the `synaptos_session` cookie
-- resolve session user
-- enforce store access, approval permissions, and admin-only actions
-
-### Eventing
-
-Primary file:
-
-- [lib/server/events.js](/Users/nguyenngochoa/Git/gg-hackathon/lib/server/events.js)
-
-Responsibilities:
-
-- publish in-process events
-- let SSE subscribers receive live updates
+- persist aggregation, model runs, proposals, guardrails, approvals, execution tasks, and audit events
+- preserve last successful store state when a later model run fails
+- publish realtime events to the SSE bus
 
 ## Data Flow
 
 ### 1. Import
 
-Source:
+1. Baseline CSV is read and normalized.
+2. Store records and snapshot keys are derived.
+3. Inventory rows are persisted.
+4. Seed users are created.
+5. Import and audit records are written.
 
-- [SynaptOS_Data - SynaptOS_Baseline_Final_v4.csv](/Users/nguyenngochoa/Git/gg-hackathon/SynaptOS_Data%20-%20SynaptOS_Baseline_Final_v4.csv)
+### 2. Aggregation Run
 
-Flow:
+1. Client requests `POST /api/aggregation/run`.
+2. Server builds `SignalObservation` records from external and internal signal types.
+3. One `AggregatedSnapshot` is persisted per store.
+4. Audit and SSE events are emitted.
 
-1. CSV is read and normalized.
-2. Store records are derived.
-3. Snapshot keys are derived.
-4. Inventory rows are persisted.
-5. Default users are seeded.
-6. Audit and import-batch records are written.
+### 3. Model Run
 
-### 2. Recommendation Run
+1. Client requests `POST /api/agent/runs`.
+2. Server loads latest aggregated snapshots.
+3. Prompt context is built per store.
+4. Provider adapters invoke `OpenAI`, `Gemini`, or `mock`.
+5. `ModelRun`, input artifact, and output artifact records are persisted.
+6. Parsed proposals continue to deterministic rules.
 
-Flow:
+### 4. Guardrails and Routing
 
-1. Client requests `POST /api/recommendations/run`.
-2. Server loads persisted rows, stores, labels, approvals, and calibrations.
-3. `runPrototype` computes the current recommendation set.
-4. Run and recommendation rows are persisted.
-5. Label rows are upserted.
-6. Audit events are created.
-7. SSE events are emitted.
-8. Client refreshes UI state.
-
-### 3. Approval
-
-Flow:
-
-1. Manager/admin submits approve or reject.
-2. Decision is persisted in `approval_decisions`.
-3. Audit event is created.
-4. Snapshot is recomputed and persisted again.
-5. Price and label events are emitted.
-
-### 4. Calibration
-
-Flow:
-
-1. Manager/admin submits shrinkage/spoilage correction.
-2. Calibration entry is persisted.
-3. Audit event is created.
-4. Snapshot is recomputed.
-5. Confidence score and downstream recommendations change.
+1. Every proposal is evaluated by `lib/server/rules/evaluate-proposal.js`.
+2. Low-risk markdowns route to labels.
+3. High-risk markdowns create approval requests.
+4. Unsaleable and stockout-risk proposals create logistics or procurement execution tasks.
+5. Audit events are written for model, guardrail, approval, and execution stages.
 
 ## RBAC Model
 
@@ -161,22 +133,20 @@ Roles:
 - `admin`
 - `manager`
 - `staff`
+- `procurement_planner`
+- `logistics_coordinator`
 
 Capabilities:
 
-- `admin`: full access across stores, import access, approval access
-- `manager`: store-scoped access, approval access, calibration access
-- `staff`: read-only, no approval or calibration actions
-
-Session behavior:
-
-- sessions are cookie-based
-- the UI role selector logs into a seeded local user
-- the selected role changes what routes can do and which stores are visible
+- `admin`: full access across stores and routes
+- `manager`: store-scoped approval and label dispatch
+- `staff`: read-only
+- `procurement_planner`: procurement console access
+- `logistics_coordinator`: logistics workbench access
 
 ## Persistence Model
 
-Current runtime store:
+Default local runtime store:
 
 - `postgresql://synaptos:synaptos@localhost:5432/synaptos_v2`
 
@@ -186,6 +156,20 @@ Core tables:
 - `inventory_rows`
 - `snapshots`
 - `users`
+- `signal_observations`
+- `aggregation_runs`
+- `aggregated_snapshots`
+- `prompt_templates`
+- `agent_runs`
+- `model_runs`
+- `model_input_artifacts`
+- `model_output_artifacts`
+- `action_proposals`
+- `guardrail_evaluations`
+- `approval_requests`
+- `execution_tasks`
+- `logistics_routes`
+- `procurement_orders`
 - `recommendation_runs`
 - `recommendations`
 - `approval_decisions`
@@ -194,67 +178,52 @@ Core tables:
 - `audit_events`
 - `import_batches`
 
-Design note:
-
-- the app now uses Postgres for runtime persistence
-- the bundled Docker Compose service provides the default local database
-
 ## SSE Event Model
 
 Transport:
 
 - `GET /api/events`
 
-Current event types emitted by the server include:
+Important event types:
 
 - `session.ready`
-- `run.completed`
+- `aggregation.completed`
+- `agent.completed`
+- `model_run.updated`
+- `proposal.updated`
+- `approval.updated`
+- `execution.updated`
+- `logistics.updated`
+- `procurement.updated`
 - `recommendation.updated`
 - `label.updated`
 - `price.updated`
 - `calibration.recorded`
 - `import.completed`
-- `import.failed`
 
-The client currently listens and refreshes state when important events arrive rather than applying event payloads as authoritative incremental patches.
+The client treats SSE as an invalidation stream and refetches authoritative state from HTTP routes.
 
-## Recommendation Lifecycle
+## Control-Tower Visibility Model
 
-Possible statuses:
+The UI separates:
 
-- `hold`
-- `auto_applied`
-- `pending_review`
-- `approved`
-- `rejected`
+- source freshness and provenance
+- latest model-run state
+- proposal queue
+- approval queue
+- logistics workbench
+- procurement console
+- audit and policy history
 
-Lifecycle rules:
-
-- low-risk markdowns can become `auto_applied`
-- guarded discounts become `pending_review`
-- manager/admin can transition to `approved` or `rejected`
-- approvals can override the suggested discount percentage
-
-## Local Postgres
-
-The repo includes a Docker-based Postgres setup in:
-
-- [docker-compose.postgres.yml](/Users/nguyenngochoa/Git/gg-hackathon/docker-compose.postgres.yml)
-- [.env.postgres.example](/Users/nguyenngochoa/Git/gg-hackathon/.env.postgres.example)
-
-Important:
-
-- start Postgres before running the app locally
-- `DATABASE_URL` overrides the bundled default connection if you want a different database
+Failed model runs do not imply successful execution. Deterministic guardrails remain the only execution authority.
 
 ## Current Limits
 
 Not implemented:
 
-- real partner POS adapters
-- supplier purchasing
-- inter-store routing
+- live POS adapters
+- live supplier purchasing
+- live inter-store routing
 - physical label hardware integration
-- external identity provider integration
+- enterprise identity provider integration
 - background worker separation
-- external production database integration

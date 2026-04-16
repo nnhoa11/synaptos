@@ -10,6 +10,7 @@ export const runtime = "nodejs";
 export async function GET(request) {
   const user = await getSessionUserFromRequest(request);
   const storeId = request.nextUrl.searchParams.get("storeId") || (user.role === "admin" ? null : user.storeId);
+  const includeSummary = request.nextUrl.searchParams.get("includeSummary") === "1";
 
   if (storeId) {
     try {
@@ -22,5 +23,15 @@ export async function GET(request) {
     }
   }
 
-  return NextResponse.json(await listAuditEvents(storeId));
+  const entries = await listAuditEvents(storeId);
+  if (!includeSummary) {
+    return NextResponse.json(entries);
+  }
+
+  const summary = entries.reduce((accumulator, entry) => {
+    accumulator[entry.type] = (accumulator[entry.type] ?? 0) + 1;
+    return accumulator;
+  }, {});
+
+  return NextResponse.json({ entries, summary });
 }
