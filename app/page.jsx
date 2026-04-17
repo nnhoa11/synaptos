@@ -1,16 +1,18 @@
-import PrototypeApp from "@/components/PrototypeApp";
-import { getPrototypeMeta } from "@/lib/prototype-data";
+import { redirect } from "next/navigation";
+import { getSessionUserFromServer } from "@/lib/server/auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const { stores, snapshots, defaultSnapshot } = await getPrototypeMeta();
+  const user = await getSessionUserFromServer();
 
-  return (
-    <PrototypeApp
-      stores={stores}
-      snapshots={snapshots}
-      defaultSnapshot={defaultSnapshot}
-    />
-  );
+  if (user && ["admin", "manager"].includes(user.role)) {
+    redirect("/admin/dashboard");
+  }
+
+  if (user?.storeId) {
+    redirect(`/pos?storeId=${encodeURIComponent(user.storeId)}`);
+  }
+
+  redirect("/admin/dashboard");
 }

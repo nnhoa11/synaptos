@@ -1,0 +1,887 @@
+﻿SynaptOS  |  Business Proposal  |  Confidential 
+1 
+ 
+ 
+B U S I N E S S  P R O P O S A L  
+ 
+SynaptOS 
+Retail Nervous System 
+ 
+Agentic AI that eliminates fresh-food waste and maximises perishable revenue - 
+autonomously. 
+ 
+$15.2B 
+Global TAM by 2034 
+17.2% 
+Market CAGR 
+$1.5M 
+Seed Round Target 
+90%+ 
+Gross Margin 
+ 
+Competition:  GDGoC Hackathon 2026     |     Round 1:  Ideation     |     Date:  2 April, 2026 
+ 
+Thai Viet ┬╖  Minh Khoa Phan ┬╖  Nguyen Ngoc Hoa  ┬╖ Le Ba Phuong Minh 
+ 
+ 
+
+SynaptOS  |  Business Proposal  |  Confidential 
+2 
+ 
+1.  EXECUTIVE SUMMARY 
+SynaptOS is an Agentic AI operating system that is meant to serve fresh-food retail 
+supply chains. It connects to the existing POS support and executes the entire price 
+determination procedure of perishable stock: reads real-time inventory amounts and expiry 
+dates, and decides to alter prices to virtual shelf tags and self-optimizes itself on the 
+premise of the later selling rate. 
+Its underlying remedy is a commercially acute problem, Vietnamese grocery retailers 
+enjoy 2-3 net margin, and waste 15-25 of their fresh commodities to rot. The existing POS 
+systems are mere books - they record the buys but contain no information of the expiry 
+date, weather variations in demand and the purchasing power of the neighbourhood. Every 
+decision to be made on pricing is a manual gut-call, too late and too crude. 
+That gut-call is replaced by SynaptOS with a fixed AI reasoner loop that costs $0.015 
+a cycle and yields 5-50 dollars of perishable value / decision. The arbitrage gross margin is 
+more than 90. 
+ 
+The vison thesis 
+SynaptOS converts the biggest cost in the grocery business, spoilage, into the biggest income 
+line, agentic AI that no incumbent or global competitor has created in Southeast Asia. 
+ 
+Key metrics  
+$15.2B 
+Global TAM by 2034 
+17.2% 
+Market CAGR 
+$0.015 
+Cost per AI loop 
+333├ù 
+Min ROI per loop 
+ 
+$75 
+SaaS / store / month 
+5% 
+Efficiency fee on rescued 
+GMV 
+8-16├ù 
+LTV : CAC ratio 
+SDG 12 
+UN Goal Alignment 
+ 
+ 
+ 
+
+SynaptOS  |  Business Proposal  |  Confidential 
+3 
+ 
+2.  THE PROBLEM 
+ 
+2.1  FRESH FOOD IS A TICKING CLOCK 
+The structure of economics of fresh-food retail is aggressive. Even unsold perishable 
+products are wasted and their worth cannot be redeemed on a defined time schedule which 
+cannot be remedied through any form of management care. A retailer can only do is to 
+charge it and at the appropriate time, it will sell the product before it expires. Miss the 
+markdown, too small, too late, too big, and the product is rotted or the margin is killed. 
+ 
+Perishable GMV is lost to spoilage by Vietnamese fresh-food retailers at 15 ΓÇô 25% /year. This is 
+hundreds of billions of recoverable value being lost annually on margins that are below 3%. to a 
+100-store chain that is generating VND 2.1 billion per store per month. 
+ 
+2.2  POS SYSTEMS ARE PASSIVE RECORDERS 
+The technology stack that was employed to take care of the vast majority of Vietnamese 
+grocery stores was developed with a single purpose in mind, the latter being the monitoring 
+of the transactions. POS systems are not smart engines, but books. They are being imported 
+with no idea of: 
+- 
+Perishable SKU expiry dates. 
+- 
+Live inventory spoilage and depletion. 
+- 
+Demand varies with weather (during hot seasons, demand on drinks rises, when 
+there is a cold front, the demand on hot food moves to the right). 
+- 
+Variations in purchasing power of the neighbourhood. 
+- 
+Prices of commodities that affect the behaviour of consumer substitution. 
+- 
+Purchasing risk and supplier lead times. 
+All the pricing decisions, such as when to mark-down, how much, what products are 
+done, are all done by a store manager, manually using experience and intuition. The result is 
+a failed system of markdowns: intensive 30 - 60% discounts within 24- 48 hours of expiry, 
+over which a lesser markdown would have been put in place a priori and sold the product at a 
+higher profit. The failure to perform is not a human issue but a systemic issue. Not a single 
+manager is able to track 500 SKUs on the flight during 8-hour shift. 
+ 
+ 
+
+SynaptOS  |  Business Proposal  |  Confidential 
+4 
+ 
+2.3  VIETNAM: HIGH-GROWTH, HIGH-URGENCY 
+The CAGR of Vietnam grocery market is estimated at 13.6 percent to $1T retail value in 2033 
+that is fueled by 7%+ GDP growth and soaring middle income group. The combination of the 
+factors of structure makes this market in a clearly acute relation of the problem of spoilage: 
+Factor 
+Vietnam-specific dynamic 
+Impact 
+Tropical climate 
+Average temperatures of 28 to 350C are 
+favorable to the growth of bacteria as 
+well as shortening the expiry dates of all 
+fresh categories. 
+30 - 40% higher rate of 
+spoilage as compared to 
+temperate markets. 
+Urbanisation rate 
+Due to the high population 
+concentration in each of the HCMC and 
+Hanoi, the cities boast of thick but very 
+heterogeneous areas of demand. 
+Hyperlocal patterns of 
+demand are a breakdown of 
+standard forecasting 
+models. 
+Chain growth 
+Bach Hoa Xanh 2,180+ outlets; WinMart+ 
+intensive growth; new entrants Korean 
+and Japanese. 
+Scale blows the problem of 
+spoilage out of thousands 
+of spots at once. 
+Thin digital layer 
+The use of POS in the form of an in-store 
+is not very prevalent; the majority of 
+chains continue to do their counts by 
+hand. 
+There is no data 
+infrastructure to support AI, 
+but it has to be overlaid, as 
+opposed to substituted. 
+Regulatory support 
+Decision 222/QD-TTg (January 2025): 
+National Circular Economy Plan will imply 
+that as of 2035, monitoring the food 
+waste will be done. 
+The audit-ready waste-
+reduction data demand 
+(policy-based, rather than 
+optional) by enterprises has 
+been changed. 
+ 
+ 
+ 
+ 
+
+SynaptOS  |  Business Proposal  |  Confidential 
+5 
+ 
+3.  THE SOLUTION - SYNAPTOS 
+3.1. SYSTEM OVERVIEW & UNIT ECONOMICS 
+SynaptOS replaces passive, legacy POS/ERP systems with an autonomous 
+central system for fresh-food inventory. It connects physical stock levels directly 
+to autonomous commercial decisions. 
+ 
+3.1.1. Unit Economics 
+Instead of relying on human managers to monitor thousands of expiring SKUs, 
+which leads to latency and margin destruction, SynaptOS executes pricing 
+arbitrage using micro-computing power. 
+Core metric 
+Data 
+Impact 
+Cost per AI loop 
+$0.015 
+Marginal cost of inference is near zero per 
+decision. 
+Value recovered 
+$5 - $50 
+Minimum 333x ROI on every successful Agent 
+action. 
+Gross margin 
+> 90% 
+Driven by a $75 SaaS base + 5% Efficiency Fee 
+on rescued goods. 
+Target spoilage 
+< 5% 
+Drastic reduction from the 15-25% industry 
+average. 
+  
+As illustrated in the target impact distribution below, the system relies 
+on a multi-lever approach. It doesn't just offer discounts, it optimizes full-price 
+sales and utilizes logistics routing to minimize unavoidable waste to 5%. 
+ 
+ 
+
+SynaptOS  |  Business Proposal  |  Confidential 
+6 
+ 
+ 3.2. AGENTIC DATA FLOW & ARCHITECTURE 
+The system is decoupled into three distinct layers:  
+Data ingestion -> Cognitive core -> Execution layer.  
+The flowchart below maps the architecture technical logic: the agent 
+aggregates both internal POS data and external macro signals to make 
+deterministic, API-driven decisions.  
+ 
+Architecture breakdown: 
+- 
+Context assembly: The aggregator fuses internal inventory levels 
+with external signals (e.g., heavy rain, high-income district) to form 
+a rich reasoning context. 
+
+SynaptOS  |  Business Proposal  |  Confidential 
+7 
+ 
+- 
+Strict function calling: The LLM is prohibited from outputting free-
+text. It is forced to return structured JSON tool calls (either 
+update_price for localized clearance, or route_logistics for cross-
+store transfer). 
+ 
+3.3. ANTI-HALLUCINATION GUARDRAILS  
+A critical failure point for AI in enterprise environments is hallucination. 
+SynaptOS neutralizes this financial risk through a Defense-in-Depth (DiD) 
+Middleware Architecture. 
+ 
+3.3.1. Core risk mitigation tactics 
+ 
+ 
+- 
+Temperature = 0.0: The LLM operates in strict deterministic mode. 
+"Creativity" is disabled for financial reasoning. 
+- 
+Shrinkage calibration: Solves the POS blindspot. Managers must 
+manually input physical shrinkage (stolen/damaged goods) at the 
+end of shifts. The AI calculates markdowns based strictly on verified 
+physical stock. 
+ 
+ 
+ 
+
+SynaptOS  |  Business Proposal  |  Confidential 
+8 
+ 
+3.4. CONTEXTUAL ELASTICITY & DYNAMIC PRICING 
+ 
+Unlike static rule-based systems, SynaptOS segments its pricing 
+strategy geographically, demographically, and temporally. This multi-
+dimensional elasticity model creates the system's primary Data Moat. The 
+agent recognizes that a 20% discount on a Tuesday morning in a residential 
+area performs fundamentally differently than the same discount on a Friday 
+night at a walking street. 
+ 
+3.4.1. Demographic markdown trajectories 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+- 
+Residential zones (light gray line): Prioritizes rapid capital recovery 
+via early, aggressive markdowns. 
+- 
+Premium zones (dark gray line): Defers discounts to the last 
+possible hour to protect brand positioning. 
+- 
+Transit zones (orange line): Maintains flat pricing during the day, 
+triggering aggressive flash-sales just before foot traffic drops. 
+ 
+ 
+ 
+
+SynaptOS  |  Business Proposal  |  Confidential 
+9 
+ 
+3.4.2. Intraday traffic & temporal execution 
+The agent maps its pricing execution to local foot-traffic spikes, 
+ensuring markdowns are applied when liquidity is actually present. 
+ 
+ 
+ 
+- 
+08:00 (suburban morning peak): Traffic spikes as families buy daily 
+groceries. The agent holds firm on base prices, refusing to discount 
+early, capturing full margin from high-intent buyers. 
+- 
+12:00 (premium urban lunch rush): Office workers flood Premium 
+zones. The agent triggers micro-markdowns (e.g., 5-10%) strictly on 
+Ready-to-Eat (RTE) meals nearing expiry, converting perishable risk 
+into immediate lunch sales. 
+- 
+17:00 - 18:00 (suburban post-work rush): The critical clearance 
+window for Residential zones. The agent triggers Progressive 
+Volume Pricing (e.g., family-pack meat discounts) to clear heavy 
+inventory before traffic dies completely at 20:00. 
+- 
+20:00 (transit / walking street peak): While suburban stores are 
+empty, Transit zones reach maximum liquidity. The Agent activates 
+Aggressive Flash Sales on snacks and beverages, capturing impulse 
+buyers and zeroing out daily inventory. 
+ 
+
+SynaptOS  |  Business Proposal  |  Confidential 
+10 
+ 
+3.4.3. Predictive procurement engine (Upstream logistics) 
+The most effective way to eliminate waste is to prevent overstocking 
+before it enters the store. SynaptOS utilizes a predictive procurement engine 
+that autonomously adjusts inbound Purchase Orders (POs) based on multi-
+variate context. 
+ 
+ 
+  
+ 
+ 
+ 
+
+SynaptOS  |  Business Proposal  |  Confidential 
+11 
+ 
+3.4.4. End-of-Life (EOL) zero waste routing (Downstream logistics) 
+When commercial clearance (E-ink discounts) reaches its limit at T-
+Minus 4 hours to expire, the agent officially revokes the SKU from the sales 
+floor and triggers physical EOL routing. This process converts unavoidable 
+waste into ESG compliance and financial tax write-offs. 
+ 
+ 
+ 
+ 
+
+SynaptOS  |  Business Proposal  |  Confidential 
+12 
+ 
+3.4.5. SKUs contextual strategy  
+The agent does not treat all expiring inventory equally. It applies hyper-
+localized strategies based on the "hero SKUs" (key items) of each micro-zone. 
+ 
+Store archetype 
+SKUs (High 
+spoilage risk) 
+Contextual strategy 
+Premium urban 
+Organic produce, 
+premium proteins 
+Cross-docking priority.  
+The agent routes surplus to 
+high-demand nodes rather 
+than discounting locally, 
+protecting margin. 
+Transit / walking 
+street 
+Ready-to-eat 
+(RTE), cold 
+beverages, 
+snacks 
+Weather-responsive & 
+impulse pricing.  
+The agent leverages 
+immediate context (e.g., 
+suppressing discounts on 
+cold drinks during a 35┬░C 
+heatwave) and triggers EOD 
+flash clearance. 
+Suburban / residential 
+Family-pack 
+meats, bulk 
+vegetables 
+Progressive volume pricing.  
+The agent applies early 
+discounts to secure weekly 
+family-shopper baskets 
+before competitors. 
+  
+3.5. POS OPERATIONAL ARCHITECTURE & HIERARCHY 
+AI cannot physically count inventory. The SynaptOS integration relies on a 
+strict ledger-based inventory engine combined with an operational hierarchy 
+(RBAC) to ensure data integrity. 
+ 
+ 
+ 
+
+SynaptOS  |  Business Proposal  |  Confidential 
+13 
+ 
+3.5.1. The ledger & calibration loop 
+SynaptOS calculates real-time inventory purely through invoice and 
+receipt of parsing, corrected by human intervention. 
+  
+ 
+ 
+3.5.2. Operational hierarchy (Role-based access control) 
+To maintain enterprise security, system intervention is strictly tiered: 
+Operational 
+level 
+Role 
+function 
+Authorization level 
+Tier 1:  
+Staff / 
+cashier 
+Execution 
+Read-Only.  
+Processes checkouts. Cannot alter AI 
+pricing or inventory data. 
+Tier 2:  
+Store 
+manager 
+Calibration & 
+safety 
+Gatekeeper.  
+Required to input physical shrinkage 
+(EOD). Authorized to approve/reject 
+AI markdowns exceeding the 50% 
+safety threshold. 
+Tier 3: 
+Chain HQ / 
+admin 
+Strategy 
+God Mode.  
+Configures global markdown 
+thresholds, assigns store 
+demographic profiles, and receives 
+aggregated ESG / Tax write-off 
+reporting. 
+ 
+
+SynaptOS  |  Business Proposal  |  Confidential 
+14 
+ 
+4.  MARKET OPPORTUNITY 
+4.1  GLOBAL MARKET SCALE 
+Among the quicker emerging sectors of AI, retail technology, and sustainability 
+compliance, the food waste management sector is one. The controlled market will expand to 
+$15.16B in CAGR of 17.2 to become 2034 what was projected to be in 2024 $3.10B of investor 
+ESG needs and compounding unit economics of AI-driven waste cut-off. 
+ 
+$3.6B 
+Global market 2025 
+$15.2B 
+Global market 2034 
+17.2% 
+CAGR 2025ΓÇô2034 
+52.8% 
+Retail & supermarket 
+share 
+ 
+4.2  TAM / SAM / SOM BREAKDOWN 
+Market 
+Definition 
+Size 
+Basis 
+TAM 
+Global AI-powered food waste 
+management for retail and food 
+service 
+$15.2B by 
+2034 
+17.2% CAGR from $3.6B 
+2025 base (Towards FnB, 
+2025) 
+SAM  
+Southeast Asia fresh-food retail AI 
+(Vietnam, Thailand, Indonesia, 
+Malaysia, Philippines) 
+$850M by 
+2028 est. 
+Vietnam $269B retail 
+economy + SEA multiplier; 
+20.7% Vietnam smart retail 
+CAGR 
+SOM  
+Vietnam Year 3 revenue target: 
+2,000 stores at blended 
+$90/store/month 
+$18M ARR by 
+Year 4 
+10% penetration of 
+Vietnam's ~20,000 modern 
+grocery locations; 
+conservative efficiency fee 
+assumptions 
+ 
+4.3  VIETNAM MARKET SIGNALS 
+Vietnam is not simply a large market - it is a market at a structural inflection point 
+where the conditions for rapid technology adoption are aligning simultaneously: 
+ 
+
+SynaptOS  |  Business Proposal  |  Confidential 
+15 
+ 
+Signal 
+Data Point 
+Implication for SynaptOS 
+Retail economy 
+scale 
+$269B total 2025; food & 
+beverage = 45% 
+Core addressable segment exceeds $120B 
+annually 
+Growth trajectory 
+13.6% retail CAGR; GDP 
+7%+ in 2025 
+Market growing faster than our expansion 
+timeline 
+Smart retail 
+adoption 
+Vietnam smart retail: 
+$238M in 2024 ΓåÆ $1.56B by 
+2033 at 20.7% CAGR 
+Infrastructure Retail AI and already in appetite. 
+Chain scale 
+Bach Hoa Xanh: 2,180+ 
+stores at VND 
+2.1B/store/month avg. 
+200 or more store deals in case of 10% 
+conversion under single chain. 
+E-invoice mandate 
+252,000 businesses on e-
+invoice by mid-2025; formal 
+POS adoption accelerating 
+Distribution channel (POS vendors) gets up 
+automatically. 
+Regulatory 
+tailwind 
+Decision 222/QD-TTg (Jan 
+2025): Circular Economy 
+Plan mandates food waste 
+tracking 
+SynaptOS enterprise demand is a policy-based 
+demand. 
+ 
+ 
+ 
+
+SynaptOS  |  Business Proposal  |  Confidential 
+16 
+ 
+5.  COMPETITIVE LANDSCAPE 
+5.1  OUR ADVANTAGE 
+Varying pricing of perishables is not a new concept. Wasteless (Israel, founded 2017, 
+raised $15M) has demonstrated that the model works in the European supermarkets. The 
+type of demand forecasting provided by RELEX Solutions and Afresh to large chains is an AI 
+one. Nevertheless, Vietnamese retailers are unable to purchase all these solutions and none 
+of the available options were developed taking into consideration the specifics of Southeast 
+Asian market. 
+ 
+Capability 
+SynaptOS 
+Wasteless (IL) 
+RELEX  
+Manual 
+Markdown 
+Agentic execution (acts 
+autonomously) 
+YES 
+YES 
+NO - 
+dashboard 
+only 
+NO 
+Zero hardware requirement 
+YES - software 
+only 
+NO - requires 
+ESL hardware 
+YES 
+YES 
+Macro signal ingestion 
+YES - live 
+commodity 
+feeds 
+NO 
+Partial 
+NO 
+Geo-demographic pricing 
+YES - district-
+level profiles 
+NO 
+NO 
+NO 
+SEA market-native 
+YES - built for 
+Vietnam 
+NO - 
+Europe/US 
+focus 
+NO 
+N/A 
+POS plugin model 
+YES - no rip-
+and-replace 
+NO - 
+standalone 
+system 
+NO - full ERP 
+replacement 
+N/A 
+Autonomous procurement 
+YES - PO 
+generation 
+agent 
+NO 
+YES (RELEX) 
+NO 
+Pricing model 
+$75/store + 5% 
+efficiency fee 
+Hardware + 
+monthly 
+licence 
+$50K+/year 
+enterprise 
+Staff cost only 
+ 
+ 
+
+SynaptOS  |  Business Proposal  |  Confidential 
+17 
+ 
+5.2  COMPETITIVE MOAT 
+Not the fact that SynaptOS is based on the AI model, the foundation models are 
+commoditising at a very high rate because it is a formal and accrual moat: 
+- 
+Data networks: Adding the number of all data on the price elasticity model. The two 
+forms of the districts make geo-demographic pricing machine ready. The competitive 
+information would consist of 24 months of compounding training on the basis of the 
+entering the competition within the market in Year 3. 
+- 
+POS vendor lock-in: The promotion-motivated expansive distribution share and 
+switching share of biggest POS systems of Vietnamese SME retailers such as KiotViet 
+and MISA are both expansive. The existing software that is owned by the retailer 
+becomes a native plug-in of SynaptOS. 
+- 
+Procurement network: The greater the degree to which the autonomous 
+procurement agent integrates with the supplier, the greater the system value 
+increases and the greater the cost of switching to an opponent of the supplier 
+integration. 
+- 
+First-mover geography: No native of SEA competitor. It is presumed that that would 
+take between 18-24 months to generate information and partnership value when a 
+global players with significant resources at its disposal to finance broadcast 
+innovations in its country of origin localises its offerings to the local markets. 
+5.3  WHY NOW 
+Three convergent forces call on this being constructed in 2026: 
+- 
+By 2024, agentic AI infrastructure will be developed. The tool-use and logic capacities 
+to construct an effective autonomous pricing agent, had not been attained to the 
+manufacturing quality until the functional-calling capacities of Claude 3 and GPT-4o. 
+SynaptOS could not be created in 2022 and can be made in 2026. 
+- 
+One, e-invoice compulsion in Vietnam (twenty-five percent of businesses will have to 
+comply by mid-2025) is committing organized production of POS data production is 
+occurring in the informal trader which is a granite making raw material of AI inventory 
+control is forming in a mass in a manner it has never been before. 
+- 
+ESG and circle economy regulation (Decision 222/QD-TTg) create the institutional 
+necessity to utilize the information related to the food waste tracking. Enterprise 
+groceries should have a data layer that is audit-ready; SynaptOS would provide it to 
+them as a by-product of the existence. 
+ 
+ 
+
+SynaptOS  |  Business Proposal  |  Confidential 
+18 
+ 
+6.  BUSINESS MODEL 
+6.1  REVENUE STREAMS 
+The model of alignment of incentives between the platform and its customers in 
+every phase of adoption is provided at SynaptOS in three streams of B2B SaaS. 
+Stream 
+Mechanism 
+Unit Price 
+Stage 
+SaaS Subscription 
+Monthly, paid peractive store, flat, 
+through integration partner of POS. 
+WebSocket E-ink protocol coordination, 
+all AI reasoning loop, dashboard, support. 
+$75 / store / 
+month 
+Core (live at 
+launch) 
+Efficiency Fee 
+5% on the GMV that shall have been 
+recovered on AI-resued perishables. Delta 
+calculated with POS Marked down based 
+on AI sold, otherwise would have been 
+wastes base Recovery with synaptos is an 
+improved response to recovery. 
+5% of rescued 
+GMV (~$40ΓÇô70 
+addl. avg.) 
+Core  
+Enterprise API 
+Dynamic pricing engine publicly available 
+to POS partners (KiotViet, MISA) or any 
+individual retail company developing an 
+in-house tooling. Monthly platform 
+licence. 
+$2,000ΓÇô
+$15,000 / 
+month 
+Phase 2 
+(Month 12+) 
+ 
+6.2  GO-TO-MARKET MOTION 
+It sells its bottom to generate sales via channel of POS vendors and switched to 
+bottom anchor chain offers when initial evidence was proven.  
+ 
+Phase 
+Motion 
+Target 
+Timeline 
+1.Seeding 
+HCMC friendly pilot 3-5 stores. 
+Efficiencyonly fee- no pilot 
+subscription fee. Base rescue and 
+GMF Recued. Increase of data 
+point of recovery evidence. 
+3ΓÇô5 stores; measurable 
+waste reduction ΓëÑ30% 
+Months 0ΓÇô3 
+2.POS 
+Channel 
+KiotViet and MISA veto 
+certification as plug-in. Their 
+clients who are retailers are 
+POS vendor partnership 
+agreements 
+Months 3ΓÇô6 
+
+SynaptOS  |  Business Proposal  |  Confidential 
+19 
+ 
+Phase 
+Motion 
+Target 
+Timeline 
+introducing SynaptOS to POS 
+vendors. In to inbound channel, 
+CAC is doing direct sales.. 
+3. Anchor 
+Chain 
+At mid-size chains: Win 50-200 
+stores deal trial (efficiency-fee) 
+win. The totality of subscriptions 
+and examples reference in the 
+future dealing will include chain 
+level, ROI guarantee. 
+1 anchor chain; 50ΓÇô200 
+stores 
+Months 6ΓÇô9 
+4.Scale 
+The inbound, reference case 
+drives have the driver being the 
+reference case driver. Chain HQs 
+model (flattened platform fee; 
+stores Per-Location SaaS). 
+Vietnam playbook, launch to 
+Thailand and Indonesia. 
+200 stores by Month 18; 
+SEA entry 
+Months 9ΓÇô18 
+ 
+6.3  REVENUE PROJECTIONS 
+They have also based their assumptions in projections on the basis of assuming 
+modest assumptions of store base adoption that include; 10% potential available 
+penetration of store base, morale store base of recovery and efficiency fee 40% of value of 
+waste (average in the industry being 35-80%) and average LTV before churn 24 months. 
+ 
+Year 
+Stores 
+MRR (Month End) 
+ARR 
+Key Milestone 
+Year 1  
+20 
+$1,800 
+$180,000 
+3 chain pilots complete; KiotViet 
+integration live 
+Year 2 
+200 
+$18,000 
+$1,800,000 
+First anchor chain converted; Series 
+A preparation 
+Year 3 
+600 
+$54,000 
+$6,000,000 
+SEA expansion (TH/ID entry); 
+Enterprise API revenue begins 
+Year 4 
+2,000 
+$150,000+ 
+$18,000,000+ 
+40% waste reduction proven at 
+scale 
+ 
+The estimated SaaS subscriptions and efficiency fee flows of revenues are at hand. 
+Enterprise API revenue which will be counted other than, monthly projections - considerable 
+as an upside in Month 12. 
+
+SynaptOS  |  Business Proposal  |  Confidential 
+20 
+ 
+7.  EXECUTION ROADMAP 
+Phase 1: Foundation (Months 0ΓÇô6) 
+Target: 3ΓÇô5 stores, first recovered GMV proof point 
+- 
+Build Virtual E-Ink (software shelf name MVP) is a prototype of a protocol named Web 
+socket protocol. 
+- 
+Deploy Agentic reasoning loop v1 -single dynamic pricing underlying loop only. 
+- 
+Minimizes Human-in-the-Loop approvals dashboard to be investigated by manager. 
+- 
+The new stores (3-5 pilot stores in the HCMC (District 1 and Phu My Hung). 
+- 
+Realign with GDGoC 2026 competition as proof-of-concept. 
+- 
+Measurable GMV rescue - demonstrate 30%+ waste reduction vs. baseline in pilot 
+stores 
+ 
+Phase 2: Commercialisation (Months 6ΓÇô12) 
+Target: 50 stores, $15,000 MRR 
+- 
+Construct Procurement Already accessible (PO generation and routing) Build 
+Autonomous Procurement Already accessible (PO generation and routing) 
+- 
+Fuse macro signal layer Brightdata price feeds. 
+- 
+Geo-pricing model Construct Geo-demographic (6 HCMC district) Items. 
+- 
+Win and do first anchor chain deal 20-50 stores efficiency-fee trial. 
+- 
+Signing agreement with KiotViet and/or MISA. 
+- 
+Measuring infrastructure infrastructure Build Construct SaaS billing infrastructure. 
+- 
+Target milestone: $15,000 MRR. 
+ 
+Phase 3: Scale (Months 12ΓÇô18) 
+Target: 200 stores, $150,000 MRR 
+- 
+Implement white-label pricing engine.  
+- 
+Implement Enterprise API to POS regulars. 
+- 
+Positive- negative Enter Thailand and Indonesia are sitting up with 2 anchor chains 
+associates each. 
+- 
+200 store milestone It has the Series A narrative and values in position. 
+- 
+To invent a carbon-credit portal, Scope 3 reporting software. 
+- 
+E-Ink physical OEM contract of shelf labels. 
+- 
+Target goal: $150,000 MRR 
+

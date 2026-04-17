@@ -1,0 +1,163 @@
+<h2>E-ink Display Interface</h2>
+<p class="subtitle">Full-screen WebSocket price board. Red = on sale, White = normal. Which grid density feels right for a shelf display?</p>
+
+<div class="split">
+
+  <div class="mockup" data-choice="large-labels" onclick="toggleSelect(this)" style="cursor:pointer">
+    <div class="mockup-header">A — Large labels (8–12 SKUs visible)</div>
+    <div class="mockup-body" style="padding:0;background:#1a1a1a;min-height:280px">
+      <div style="background:#111;padding:6px 12px;display:flex;align-items:center;justify-content:space-between">
+        <span style="color:#fff;font-size:9px;font-weight:700;letter-spacing:3px">SYNAPTOS E-INK · Q7 STORE</span>
+        <span style="color:#4ade80;font-size:8px">⬤ WS CONNECTED · 20:14:33</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:3px;padding:6px">
+
+        <!-- ON SALE — red -->
+        <div style="background:#dc2626;border-radius:4px;padding:10px 8px;text-align:center;position:relative">
+          <div style="color:#fff;font-size:7px;font-weight:700;letter-spacing:1px;margin-bottom:4px">CHICKEN BREAST</div>
+          <div style="color:#fff;font-size:18px;font-weight:900;line-height:1">89K₫</div>
+          <div style="color:#fca5a5;font-size:7px;text-decoration:line-through;margin-top:2px">127K₫</div>
+          <div style="background:#fff;color:#dc2626;font-size:8px;font-weight:900;padding:2px 6px;border-radius:2px;margin-top:4px;display:inline-block">-30%</div>
+          <div style="color:#fca5a5;font-size:6px;margin-top:3px">EXP 18:00 · 500g</div>
+        </div>
+
+        <!-- NORMAL — white -->
+        <div style="background:#fff;border:1px solid #d1d5db;border-radius:4px;padding:10px 8px;text-align:center">
+          <div style="color:#374151;font-size:7px;font-weight:700;letter-spacing:1px;margin-bottom:4px">ORGANIC SALAD</div>
+          <div style="color:#111827;font-size:18px;font-weight:900;line-height:1">45K₫</div>
+          <div style="color:#9ca3af;font-size:7px;margin-top:2px">·</div>
+          <div style="color:#6b7280;font-size:6px;margin-top:7px">EXP 20:00 · 200g</div>
+        </div>
+
+        <!-- ON SALE — red -->
+        <div style="background:#dc2626;border-radius:4px;padding:10px 8px;text-align:center">
+          <div style="color:#fff;font-size:7px;font-weight:700;letter-spacing:1px;margin-bottom:4px">PORK BELLY</div>
+          <div style="color:#fff;font-size:18px;font-weight:900;line-height:1">65K₫</div>
+          <div style="color:#fca5a5;font-size:7px;text-decoration:line-through;margin-top:2px">118K₫</div>
+          <div style="background:#fff;color:#dc2626;font-size:8px;font-weight:900;padding:2px 6px;border-radius:2px;margin-top:4px;display:inline-block">-45%</div>
+          <div style="color:#fca5a5;font-size:6px;margin-top:3px">EXP 16:00 · 300g</div>
+        </div>
+
+        <!-- NORMAL -->
+        <div style="background:#fff;border:1px solid #d1d5db;border-radius:4px;padding:10px 8px;text-align:center">
+          <div style="color:#374151;font-size:7px;font-weight:700;letter-spacing:1px;margin-bottom:4px">FRESH MILK</div>
+          <div style="color:#111827;font-size:18px;font-weight:900;line-height:1">32K₫</div>
+          <div style="color:#9ca3af;font-size:7px;margin-top:2px">·</div>
+          <div style="color:#6b7280;font-size:6px;margin-top:7px">EXP +3 DAYS · 1L</div>
+        </div>
+
+        <!-- ON SALE -->
+        <div style="background:#dc2626;border-radius:4px;padding:10px 8px;text-align:center">
+          <div style="color:#fff;font-size:7px;font-weight:700;letter-spacing:1px;margin-bottom:4px">RTE NOODLES</div>
+          <div style="color:#fff;font-size:18px;font-weight:900;line-height:1">28K₫</div>
+          <div style="color:#fca5a5;font-size:7px;text-decoration:line-through;margin-top:2px">35K₫</div>
+          <div style="background:#fff;color:#dc2626;font-size:8px;font-weight:900;padding:2px 6px;border-radius:2px;margin-top:4px;display:inline-block">-20%</div>
+          <div style="color:#fca5a5;font-size:6px;margin-top:3px">EXP 14:00 · 1 BOX</div>
+        </div>
+
+        <!-- NORMAL -->
+        <div style="background:#fff;border:1px solid #d1d5db;border-radius:4px;padding:10px 8px;text-align:center">
+          <div style="color:#374151;font-size:7px;font-weight:700;letter-spacing:1px;margin-bottom:4px">TOFU BLOCK</div>
+          <div style="color:#111827;font-size:18px;font-weight:900;line-height:1">18K₫</div>
+          <div style="color:#9ca3af;font-size:7px;margin-top:2px">·</div>
+          <div style="color:#6b7280;font-size:6px;margin-top:7px">EXP +1 DAY · 400g</div>
+        </div>
+
+        <!-- NORMAL -->
+        <div style="background:#fff;border:1px solid #d1d5db;border-radius:4px;padding:10px 8px;text-align:center">
+          <div style="color:#374151;font-size:7px;font-weight:700;letter-spacing:1px;margin-bottom:4px">YOGHURT CUP</div>
+          <div style="color:#111827;font-size:18px;font-weight:900;line-height:1">22K₫</div>
+          <div style="color:#9ca3af;font-size:7px;margin-top:2px">·</div>
+          <div style="color:#6b7280;font-size:6px;margin-top:7px">EXP +2 DAYS · 150g</div>
+        </div>
+
+        <!-- ON SALE -->
+        <div style="background:#dc2626;border-radius:4px;padding:10px 8px;text-align:center">
+          <div style="color:#fff;font-size:7px;font-weight:700;letter-spacing:1px;margin-bottom:4px">COLD BREW</div>
+          <div style="color:#fff;font-size:18px;font-weight:900;line-height:1">38K₫</div>
+          <div style="color:#fca5a5;font-size:7px;text-decoration:line-through;margin-top:2px">55K₫</div>
+          <div style="background:#fff;color:#dc2626;font-size:8px;font-weight:900;padding:2px 6px;border-radius:2px;margin-top:4px;display:inline-block">-31%</div>
+          <div style="color:#fca5a5;font-size:6px;margin-top:3px">EXP TODAY · 250ml</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup" data-choice="compact-dense" onclick="toggleSelect(this)" style="cursor:pointer">
+    <div class="mockup-header">B — Compact grid (20+ SKUs visible)</div>
+    <div class="mockup-body" style="padding:0;background:#1a1a1a;min-height:280px">
+      <div style="background:#111;padding:5px 10px;display:flex;align-items:center;justify-content:space-between">
+        <span style="color:#fff;font-size:8px;font-weight:700;letter-spacing:2px">SYNAPTOS · Q7</span>
+        <span style="color:#4ade80;font-size:7px">⬤ LIVE 20:14</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:2px;padding:4px">
+        <!-- Row 1 -->
+        <div style="background:#dc2626;border-radius:3px;padding:5px 4px;text-align:center">
+          <div style="color:#fff;font-size:6px;font-weight:700">CHICKEN</div>
+          <div style="color:#fff;font-size:13px;font-weight:900">89K</div>
+          <div style="background:#fff;color:#dc2626;font-size:6px;font-weight:800;padding:1px 3px;border-radius:2px;margin-top:1px">-30%</div>
+        </div>
+        <div style="background:#fff;border:1px solid #d1d5db;border-radius:3px;padding:5px 4px;text-align:center">
+          <div style="color:#374151;font-size:6px;font-weight:700">SALAD</div>
+          <div style="color:#111;font-size:13px;font-weight:900">45K</div>
+          <div style="font-size:6px;color:#9ca3af;margin-top:3px">–</div>
+        </div>
+        <div style="background:#dc2626;border-radius:3px;padding:5px 4px;text-align:center">
+          <div style="color:#fff;font-size:6px;font-weight:700">PORK</div>
+          <div style="color:#fff;font-size:13px;font-weight:900">65K</div>
+          <div style="background:#fff;color:#dc2626;font-size:6px;font-weight:800;padding:1px 3px;border-radius:2px;margin-top:1px">-45%</div>
+        </div>
+        <div style="background:#fff;border:1px solid #d1d5db;border-radius:3px;padding:5px 4px;text-align:center">
+          <div style="color:#374151;font-size:6px;font-weight:700">MILK</div>
+          <div style="color:#111;font-size:13px;font-weight:900">32K</div>
+          <div style="font-size:6px;color:#9ca3af;margin-top:3px">–</div>
+        </div>
+        <div style="background:#dc2626;border-radius:3px;padding:5px 4px;text-align:center">
+          <div style="color:#fff;font-size:6px;font-weight:700">NOODLES</div>
+          <div style="color:#fff;font-size:13px;font-weight:900">28K</div>
+          <div style="background:#fff;color:#dc2626;font-size:6px;font-weight:800;padding:1px 3px;border-radius:2px;margin-top:1px">-20%</div>
+        </div>
+        <div style="background:#fff;border:1px solid #d1d5db;border-radius:3px;padding:5px 4px;text-align:center">
+          <div style="color:#374151;font-size:6px;font-weight:700">TOFU</div>
+          <div style="color:#111;font-size:13px;font-weight:900">18K</div>
+          <div style="font-size:6px;color:#9ca3af;margin-top:3px">–</div>
+        </div>
+        <!-- Row 2 -->
+        <div style="background:#fff;border:1px solid #d1d5db;border-radius:3px;padding:5px 4px;text-align:center">
+          <div style="color:#374151;font-size:6px;font-weight:700">YOGHURT</div>
+          <div style="color:#111;font-size:13px;font-weight:900">22K</div>
+          <div style="font-size:6px;color:#9ca3af;margin-top:3px">–</div>
+        </div>
+        <div style="background:#dc2626;border-radius:3px;padding:5px 4px;text-align:center">
+          <div style="color:#fff;font-size:6px;font-weight:700">COLD BREW</div>
+          <div style="color:#fff;font-size:13px;font-weight:900">38K</div>
+          <div style="background:#fff;color:#dc2626;font-size:6px;font-weight:800;padding:1px 3px;border-radius:2px;margin-top:1px">-31%</div>
+        </div>
+        <div style="background:#fff;border:1px solid #d1d5db;border-radius:3px;padding:5px 4px;text-align:center">
+          <div style="color:#374151;font-size:6px;font-weight:700">BUTTER</div>
+          <div style="color:#111;font-size:13px;font-weight:900">55K</div>
+          <div style="font-size:6px;color:#9ca3af;margin-top:3px">–</div>
+        </div>
+        <div style="background:#dc2626;border-radius:3px;padding:5px 4px;text-align:center">
+          <div style="color:#fff;font-size:6px;font-weight:700">FISH FILLET</div>
+          <div style="color:#fff;font-size:13px;font-weight:900">75K</div>
+          <div style="background:#fff;color:#dc2626;font-size:6px;font-weight:800;padding:1px 3px;border-radius:2px;margin-top:1px">-25%</div>
+        </div>
+        <div style="background:#fff;border:1px solid #d1d5db;border-radius:3px;padding:5px 4px;text-align:center">
+          <div style="color:#374151;font-size:6px;font-weight:700">APPLE</div>
+          <div style="color:#111;font-size:13px;font-weight:900">12K</div>
+          <div style="font-size:6px;color:#9ca3af;margin-top:3px">–</div>
+        </div>
+        <div style="background:#fff;border:1px solid #d1d5db;border-radius:3px;padding:5px 4px;text-align:center">
+          <div style="color:#374151;font-size:6px;font-weight:700">EGGS ×6</div>
+          <div style="color:#111;font-size:13px;font-weight:900">28K</div>
+          <div style="font-size:6px;color:#9ca3af;margin-top:3px">–</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:16px">A = large labels, clearly readable from a distance. B = dense grid, shows more SKUs at once. Click to pick.</p>

@@ -1,19 +1,33 @@
 {
   "name": "synaptos-prototype",
   "version": "0.1.0",
+  "description": "SynaptOS retail inventory platform with admin, POS, and E-ink interfaces.",
+  "author": "OpenAI Codex",
+  "main": "electron/main.js",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "node server.js",
     "build": "next build",
-    "start": "next start",
+    "start": "set NODE_ENV=production&& node server.js",
     "db:up": "docker compose -f docker-compose.postgres.yml up -d",
     "db:down": "docker compose -f docker-compose.postgres.yml down",
-    "db:logs": "docker compose -f docker-compose.postgres.yml logs -f postgres"
+    "db:logs": "docker compose -f docker-compose.postgres.yml logs -f postgres",
+    "electron:dev": "powershell -NoProfile -Command \"if (Test-Path 'dist/win-unpacked/SynaptOS POS.exe') { Start-Process 'dist/win-unpacked/SynaptOS POS.exe' } else { npm run package:win; Start-Process 'dist/win-unpacked/SynaptOS POS.exe' }\"",
+    "package:win": "electron-builder --config electron/electron-builder.yml --win"
   },
   "dependencies": {
+    "exa-js": "^1.4.11",
+    "jspdf": "^2.5.1",
+    "jspdf-autotable": "^3.8.4",
     "next": "^15.5.5",
     "pg": "^8.20.0",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1"
+  },
+  "devDependencies": {
+    "electron": "30.5.1",
+    "electron-builder": "^24.13.3"
   }
 }

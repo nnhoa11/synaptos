@@ -1,0 +1,634 @@
+.dashboard {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.bentoCard {
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%),
+    linear-gradient(135deg, rgba(59, 130, 246, 0.04), rgba(15, 23, 42, 0.02));
+  border-color: rgba(226, 232, 240, 0.94);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+}
+
+.heroCard {
+  background:
+    radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), transparent 30%),
+    linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+}
+
+.span3 {
+  grid-column: span 3;
+}
+
+.span4 {
+  grid-column: span 4;
+}
+
+.span5 {
+  grid-column: span 5;
+}
+
+.span7 {
+  grid-column: span 7;
+}
+
+.span8 {
+  grid-column: span 8;
+}
+
+.span12 {
+  grid-column: 1 / -1;
+}
+
+.metricsGrid {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.metricCard {
+  min-height: 148px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.98)),
+    linear-gradient(135deg, rgba(15, 23, 42, 0.015), rgba(59, 130, 246, 0.03));
+  border: 1px solid rgba(226, 232, 240, 0.96);
+}
+
+.metricBody {
+  display: grid;
+  gap: 10px;
+}
+
+.metricLabel {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.metricValue {
+  font-size: clamp(24px, 2vw, 34px);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--navy);
+}
+
+.metricDetail {
+  min-height: 36px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.metricSpark {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  min-height: 34px;
+}
+
+.metricBar {
+  flex: 1;
+  min-width: 6px;
+  border-radius: 999px;
+  background: rgba(59, 130, 246, 0.22);
+}
+
+.metricBarblue {
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.9), rgba(59, 130, 246, 0.24));
+}
+
+.metricBargreen {
+  background: linear-gradient(180deg, rgba(22, 163, 74, 0.9), rgba(22, 163, 74, 0.22));
+}
+
+.metricBarred {
+  background: linear-gradient(180deg, rgba(239, 68, 68, 0.9), rgba(239, 68, 68, 0.22));
+}
+
+.metricBaramber {
+  background: linear-gradient(180deg, rgba(245, 158, 11, 0.94), rgba(245, 158, 11, 0.24));
+}
+
+.heroBody {
+  display: grid;
+  gap: 18px;
+}
+
+.heroMetaGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.heroStat {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid rgba(226, 232, 240, 0.92);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.heroStatLabel {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.heroStat strong {
+  font-size: 15px;
+  color: var(--navy);
+}
+
+.legendRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.legendLine {
+  display: inline-block;
+  width: 28px;
+  border-top: 3px solid var(--blue);
+}
+
+.legendLineActual {
+  border-top-style: solid;
+}
+
+.legendLineForecast {
+  border-top-color: var(--amber);
+  border-top-style: dashed;
+}
+
+.heroContext {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.chartShell {
+  border: 1px solid rgba(226, 232, 240, 0.94);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(241, 245, 249, 0.82)),
+    linear-gradient(135deg, rgba(59, 130, 246, 0.03), transparent 42%);
+  overflow: hidden;
+}
+
+.heroChart {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.gridLine {
+  stroke: rgba(148, 163, 184, 0.26);
+  stroke-width: 1;
+}
+
+.yAxisLabel,
+.xAxisLabel {
+  fill: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.actualArea {
+  fill: url(#traffic-area);
+}
+
+.actualPath {
+  fill: none;
+  stroke: var(--blue);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.forecastPath {
+  fill: none;
+  stroke: var(--amber);
+  stroke-width: 3;
+  stroke-dasharray: 10 8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.actualDot {
+  fill: var(--blue);
+  stroke: #ffffff;
+  stroke-width: 3;
+}
+
+.forecastDot {
+  fill: var(--amber);
+  stroke: #ffffff;
+  stroke-width: 2;
+}
+
+.sectionLabel {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.districtBody,
+.heatmapBody,
+.signalBody,
+.demandBody,
+.freshnessBody,
+.historyBody {
+  display: grid;
+  gap: 14px;
+}
+
+.districtGrid {
+  display: grid;
+  gap: 12px;
+}
+
+.districtCard {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.districtHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.districtName {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.districtMeta {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.sparkline {
+  width: 100%;
+  height: auto;
+}
+
+.sparklineTrack {
+  fill: none;
+  stroke: rgba(203, 213, 225, 0.94);
+  stroke-width: 1;
+}
+
+.sparklinePath {
+  fill: none;
+  stroke: var(--navy);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.districtFooter {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.heatmapTable {
+  display: grid;
+  gap: 10px;
+}
+
+.heatmapHeaderRow,
+.heatmapRow {
+  display: grid;
+  grid-template-columns: 132px repeat(16, minmax(0, 1fr));
+  gap: 6px;
+  align-items: stretch;
+}
+
+.heatmapCorner,
+.heatmapHour {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.heatmapCorner {
+  justify-content: flex-start;
+}
+
+.heatmapLabel {
+  display: grid;
+  align-content: center;
+  gap: 3px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.heatmapLabel strong {
+  color: var(--navy);
+}
+
+.heatmapCell {
+  display: grid;
+  place-items: center;
+  min-height: 42px;
+  border: 1px solid rgba(255, 255, 255, 0.74);
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(15, 23, 42, 0.28);
+}
+
+.heatmapCellPeak {
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.6);
+}
+
+.demandList,
+.freshnessList,
+.historyList {
+  display: grid;
+  gap: 12px;
+}
+
+.demandRow,
+.freshnessRow,
+.historyItem {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid rgba(226, 232, 240, 0.92);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.demandHead,
+.freshnessHead,
+.historyTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.demandMeta,
+.freshnessMeta,
+.historyMeta,
+.historyCopy {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.demandBarTrack,
+.freshnessTrack {
+  position: relative;
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(226, 232, 240, 0.9);
+}
+
+.demandBarFill,
+.freshnessFill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 999px;
+}
+
+.demandToneblue {
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.92), rgba(14, 165, 233, 0.76));
+}
+
+.demandToneamber {
+  background: linear-gradient(90deg, rgba(245, 158, 11, 0.94), rgba(251, 191, 36, 0.78));
+}
+
+.demandTonered {
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.94), rgba(248, 113, 113, 0.76));
+}
+
+.demandTonegray {
+  background: linear-gradient(90deg, rgba(100, 116, 139, 0.94), rgba(148, 163, 184, 0.76));
+}
+
+.demandFoot {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.signalColumns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.signalColumn {
+  display: grid;
+  gap: 12px;
+}
+
+.signalItem {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid rgba(226, 232, 240, 0.92);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(248, 250, 252, 0.82)),
+    linear-gradient(135deg, rgba(59, 130, 246, 0.03), transparent);
+}
+
+.signalItemTop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.signalDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.signalDotblue {
+  background: var(--blue);
+}
+
+.signalDotamber {
+  background: var(--amber);
+}
+
+.signalDotgreen {
+  background: var(--green);
+}
+
+.signalDotred {
+  background: var(--red);
+}
+
+.signalDotgray {
+  background: var(--muted);
+}
+
+.signalKicker {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.signalItem h4 {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.3;
+  color: var(--navy);
+}
+
+.signalItem p {
+  margin: 0;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.signalMeta {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.badgeStack {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.freshnessFill {
+  background: linear-gradient(90deg, rgba(22, 163, 74, 0.88), rgba(59, 130, 246, 0.84));
+}
+
+.emptyCopy {
+  padding: 16px;
+  border: 1px dashed rgba(203, 213, 225, 0.92);
+  border-radius: var(--radius);
+  color: var(--muted);
+  background: rgba(248, 250, 252, 0.94);
+}
+
+@media (max-width: 1360px) {
+  .metricsGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .span8,
+  .span7,
+  .span5 {
+    grid-column: span 6;
+  }
+
+  .span4,
+  .span3 {
+    grid-column: span 6;
+  }
+}
+
+@media (max-width: 1120px) {
+  .dashboard {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .metricsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .span8,
+  .span7,
+  .span5,
+  .span4,
+  .span3 {
+    grid-column: span 6;
+  }
+
+  .heroMetaGrid,
+  .signalColumns {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .heatmapHeaderRow,
+  .heatmapRow {
+    grid-template-columns: 120px repeat(16, minmax(26px, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .dashboard,
+  .metricsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .span12,
+  .span8,
+  .span7,
+  .span5,
+  .span4,
+  .span3 {
+    grid-column: 1 / -1;
+  }
+
+  .heroMetaGrid,
+  .signalColumns {
+    grid-template-columns: 1fr;
+  }
+
+  .districtFooter,
+  .demandFoot,
+  .freshnessHead,
+  .historyTop,
+  .heroContext {
+    display: block;
+  }
+
+  .heatmapBody {
+    overflow-x: auto;
+  }
+
+  .heatmapTable {
+    min-width: 720px;
+  }
+}

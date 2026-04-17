@@ -3,11 +3,17 @@
 node_modules
 npm-debug.log*
 .env*
+!.env.example
 coverage
 dist
 build
 *.log
 *.tmp
+.next/dev
+.next/*.log
+.electron-cache
+cookies.txt
+release
 .vscode
 .idea
 Thumbs.db

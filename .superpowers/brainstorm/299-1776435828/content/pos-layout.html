@@ -1,0 +1,138 @@
+<h2>POS Interface Layout</h2>
+<p class="subtitle">Electron window — chromeless, full-screen. Corporate light mode, dark accents. Which layout works best for a cashier?</p>
+
+<div class="split">
+
+  <div class="mockup" data-choice="split-cart" onclick="toggleSelect(this)" style="cursor:pointer">
+    <div class="mockup-header">A — Split: Product left, Cart right</div>
+    <div class="mockup-body" style="padding:0;background:#f1f5f9;min-height:300px;display:flex;flex-direction:column">
+      <!-- POS Header -->
+      <div style="background:#0f172a;padding:8px 14px;display:flex;align-items:center;justify-content:space-between">
+        <span style="color:#fff;font-size:11px;font-weight:700;letter-spacing:2px">SYNAPTOS POS</span>
+        <div style="display:flex;gap:10px;align-items:center">
+          <span style="background:#16a34a;color:#fff;font-size:8px;padding:2px 8px;border-radius:4px">● LIVE</span>
+          <span style="color:#64748b;font-size:9px">Cashier: Minh</span>
+          <span style="color:#64748b;font-size:9px">Shift: 08:00–16:00</span>
+        </div>
+      </div>
+      <!-- Body -->
+      <div style="display:flex;flex:1">
+        <!-- Left: Search + Products -->
+        <div style="flex:1;padding:10px;border-right:1px solid #e2e8f0">
+          <input style="width:100%;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:4px;padding:6px 10px;font-size:10px;margin-bottom:8px;background:#fff" placeholder="🔍 Search SKU or scan barcode..." />
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px">
+            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:4px;padding:7px;text-align:center">
+              <div style="font-size:9px;color:#0f172a;font-weight:600">Chicken Breast</div>
+              <div style="font-size:8px;color:#64748b">500g · Exp 18:00</div>
+              <div style="font-size:11px;color:#16a34a;font-weight:700">89,000₫</div>
+              <div style="background:#ef4444;color:#fff;font-size:7px;padding:1px 4px;border-radius:2px;margin-top:2px">-30% SALE</div>
+            </div>
+            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:4px;padding:7px;text-align:center">
+              <div style="font-size:9px;color:#0f172a;font-weight:600">Organic Salad</div>
+              <div style="font-size:8px;color:#64748b">200g · Exp 20:00</div>
+              <div style="font-size:11px;color:#0f172a;font-weight:700">45,000₫</div>
+            </div>
+            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:4px;padding:7px;text-align:center">
+              <div style="font-size:9px;color:#0f172a;font-weight:600">Fresh Milk</div>
+              <div style="font-size:8px;color:#64748b">1L · Exp +3d</div>
+              <div style="font-size:11px;color:#0f172a;font-weight:700">32,000₫</div>
+            </div>
+            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:4px;padding:7px;text-align:center">
+              <div style="font-size:9px;color:#0f172a;font-weight:600">Pork Belly</div>
+              <div style="font-size:8px;color:#64748b">300g · Exp 16:00</div>
+              <div style="font-size:11px;color:#ef4444;font-weight:700">65,000₫</div>
+              <div style="background:#ef4444;color:#fff;font-size:7px;padding:1px 4px;border-radius:2px;margin-top:2px">-45% SALE</div>
+            </div>
+            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:4px;padding:7px;text-align:center">
+              <div style="font-size:9px;color:#0f172a;font-weight:600">RTE Noodles</div>
+              <div style="font-size:8px;color:#64748b">1 box · Exp 14:00</div>
+              <div style="font-size:11px;color:#16a34a;font-weight:700">28,000₫</div>
+              <div style="background:#ef4444;color:#fff;font-size:7px;padding:1px 4px;border-radius:2px;margin-top:2px">-20% SALE</div>
+            </div>
+            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:4px;padding:7px;text-align:center">
+              <div style="font-size:9px;color:#0f172a;font-weight:600">Tofu Block</div>
+              <div style="font-size:8px;color:#64748b">400g · Exp +1d</div>
+              <div style="font-size:11px;color:#0f172a;font-weight:700">18,000₫</div>
+            </div>
+          </div>
+        </div>
+        <!-- Right: Cart -->
+        <div style="width:160px;padding:10px;display:flex;flex-direction:column;background:#fff">
+          <div style="font-size:10px;font-weight:700;color:#0f172a;margin-bottom:8px">Current Order</div>
+          <div style="flex:1">
+            <div style="border-bottom:1px solid #f1f5f9;padding:5px 0;display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <div style="font-size:9px;color:#0f172a">Chicken Breast</div>
+                <div style="font-size:8px;color:#64748b">x1 · -30%</div>
+              </div>
+              <div style="font-size:9px;font-weight:600;color:#16a34a">89,000₫</div>
+            </div>
+            <div style="border-bottom:1px solid #f1f5f9;padding:5px 0;display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <div style="font-size:9px;color:#0f172a">Fresh Milk</div>
+                <div style="font-size:8px;color:#64748b">x2</div>
+              </div>
+              <div style="font-size:9px;font-weight:600;color:#0f172a">64,000₫</div>
+            </div>
+          </div>
+          <div style="border-top:1px solid #e2e8f0;padding-top:8px;margin-top:8px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+              <span style="font-size:10px;color:#64748b">Total</span>
+              <span style="font-size:12px;font-weight:700;color:#0f172a">153,000₫</span>
+            </div>
+            <div style="background:#0f172a;color:#fff;text-align:center;padding:7px;border-radius:4px;font-size:10px;font-weight:700;margin-bottom:4px">CHECKOUT</div>
+            <div style="border:1px solid #e2e8f0;color:#64748b;text-align:center;padding:5px;border-radius:4px;font-size:9px">Clear</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup" data-choice="numpad-focus" onclick="toggleSelect(this)" style="cursor:pointer">
+    <div class="mockup-header">B — Numpad-centric (tablet/touch style)</div>
+    <div class="mockup-body" style="padding:0;background:#f1f5f9;min-height:300px;display:flex;flex-direction:column">
+      <div style="background:#0f172a;padding:8px 14px;display:flex;align-items:center;justify-content:space-between">
+        <span style="color:#fff;font-size:11px;font-weight:700;letter-spacing:2px">SYNAPTOS POS</span>
+        <span style="background:#16a34a;color:#fff;font-size:8px;padding:2px 8px;border-radius:4px">● LIVE</span>
+      </div>
+      <div style="display:flex;flex:1">
+        <!-- Cart summary top -->
+        <div style="flex:1;padding:10px">
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:4px;padding:8px;margin-bottom:8px;min-height:80px">
+            <div style="font-size:8px;color:#64748b;margin-bottom:4px">ORDER ITEMS</div>
+            <div style="display:flex;justify-content:space-between;font-size:9px;color:#0f172a;margin-bottom:3px"><span>Chicken Breast ×1</span><span style="color:#16a34a">89,000₫</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:9px;color:#0f172a"><span>Fresh Milk ×2</span><span>64,000₫</span></div>
+          </div>
+          <!-- Numpad -->
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:4px;padding:8px">
+            <div style="font-size:10px;color:#0f172a;font-weight:600;text-align:right;margin-bottom:6px;padding:4px;background:#f8fafc;border-radius:3px">153,000₫</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px">
+              <div style="background:#f1f5f9;border-radius:4px;text-align:center;padding:8px;font-size:12px;color:#0f172a;font-weight:600">7</div>
+              <div style="background:#f1f5f9;border-radius:4px;text-align:center;padding:8px;font-size:12px;color:#0f172a;font-weight:600">8</div>
+              <div style="background:#f1f5f9;border-radius:4px;text-align:center;padding:8px;font-size:12px;color:#0f172a;font-weight:600">9</div>
+              <div style="background:#f1f5f9;border-radius:4px;text-align:center;padding:8px;font-size:12px;color:#0f172a;font-weight:600">4</div>
+              <div style="background:#f1f5f9;border-radius:4px;text-align:center;padding:8px;font-size:12px;color:#0f172a;font-weight:600">5</div>
+              <div style="background:#f1f5f9;border-radius:4px;text-align:center;padding:8px;font-size:12px;color:#0f172a;font-weight:600">6</div>
+              <div style="background:#f1f5f9;border-radius:4px;text-align:center;padding:8px;font-size:12px;color:#0f172a;font-weight:600">1</div>
+              <div style="background:#f1f5f9;border-radius:4px;text-align:center;padding:8px;font-size:12px;color:#0f172a;font-weight:600">2</div>
+              <div style="background:#f1f5f9;border-radius:4px;text-align:center;padding:8px;font-size:12px;color:#0f172a;font-weight:600">3</div>
+              <div style="background:#f1f5f9;border-radius:4px;text-align:center;padding:8px;font-size:12px;color:#0f172a;font-weight:600">⌫</div>
+              <div style="background:#f1f5f9;border-radius:4px;text-align:center;padding:8px;font-size:12px;color:#0f172a;font-weight:600">0</div>
+              <div style="background:#0f172a;border-radius:4px;text-align:center;padding:8px;font-size:10px;color:#fff;font-weight:700">✓ PAY</div>
+            </div>
+          </div>
+        </div>
+        <!-- Right: quick SKU -->
+        <div style="width:120px;padding:10px;border-left:1px solid #e2e8f0">
+          <div style="font-size:8px;color:#64748b;margin-bottom:6px">QUICK ADD</div>
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:4px;padding:6px;margin-bottom:4px;font-size:8px;color:#0f172a">Chicken 500g<br/><span style="color:#16a34a;font-weight:600">89K₫ -30%</span></div>
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:4px;padding:6px;margin-bottom:4px;font-size:8px;color:#0f172a">Fresh Milk 1L<br/><span style="color:#0f172a;font-weight:600">32K₫</span></div>
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:4px;padding:6px;font-size:8px;color:#0f172a">RTE Noodles<br/><span style="color:#16a34a;font-weight:600">28K₫ -20%</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:16px">A = product grid + cart panel (mouse/keyboard). B = numpad-centric (touchscreen/tablet). Click to select.</p>

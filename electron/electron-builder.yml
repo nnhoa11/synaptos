@@ -1,0 +1,29 @@
+appId: com.synaptos.pos
+productName: SynaptOS POS
+directories:
+  output: dist
+win:
+  target: nsis
+  icon: electron/icon.ico
+files:
+  - "app/**/*"
+  - "components/**/*"
+  - "electron/**/*"
+  - "lib/**/*"
+  - ".next/**/*"
+  - "node_modules/**/*"
+  - "server.js"
+  - "package.json"
+  - "next.config.mjs"
+  - "jsconfig.json"
+  - "SynaptOS_Data - SynaptOS_Baseline_Final_v4.csv"
+  - ".env"
+  - "!.git{,/**}"
+  - "!.next/cache{,/**}"
+  - "!.superpowers{,/**}"
+  - "!checklists{,/**}"
+  - "!contracts{,/**}"
+  - "!docs{,/**}"
+  - "!startup-cto{,/**}"
+extraMetadata:
+  main: electron/main.js

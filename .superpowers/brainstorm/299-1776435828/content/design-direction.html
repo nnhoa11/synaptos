@@ -1,0 +1,101 @@
+<h2>Admin Dashboard Design Direction</h2>
+<p class="subtitle">Which visual style fits SynaptOS best? All three use the same features — only the aesthetic differs.</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="dark-pro" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0f1117;padding:16px;border-radius:6px;font-family:monospace">
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <div style="background:#1e2130;border-radius:4px;padding:6px 10px;color:#7c85f5;font-size:11px;font-weight:600">SYNAPTOS</div>
+        <div style="background:#1e2130;border-radius:4px;padding:6px 10px;color:#4ade80;font-size:10px">● LIVE</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px">
+        <div style="background:#1e2130;border-radius:4px;padding:8px;text-align:center">
+          <div style="color:#4ade80;font-size:14px;font-weight:700">94.2%</div>
+          <div style="color:#6b7280;font-size:9px">SELL-THROUGH</div>
+        </div>
+        <div style="background:#1e2130;border-radius:4px;padding:8px;text-align:center">
+          <div style="color:#f59e0b;font-size:14px;font-weight:700">3.1%</div>
+          <div style="color:#6b7280;font-size:9px">WASTE RATE</div>
+        </div>
+        <div style="background:#1e2130;border-radius:4px;padding:8px;text-align:center">
+          <div style="color:#7c85f5;font-size:14px;font-weight:700">$12.4K</div>
+          <div style="color:#6b7280;font-size:9px">RESCUED GMV</div>
+        </div>
+      </div>
+      <div style="background:#1e2130;border-radius:4px;padding:8px">
+        <div style="color:#4ade80;font-size:9px;margin-bottom:4px">▶ RUN RECOMMENDATION ENGINE</div>
+        <div style="background:#0f1117;border-radius:3px;height:4px">
+          <div style="background:#7c85f5;height:4px;border-radius:3px;width:70%"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Dark Pro</h3>
+      <p>Deep navy/black background, neon green &amp; purple accents. Feels like a trading terminal or ops command center. High contrast, data-dense.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="clean-saas" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f8fafc;padding:16px;border-radius:6px;font-family:system-ui">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div style="color:#1e293b;font-size:12px;font-weight:700">SynaptOS</div>
+        <div style="background:#dcfce7;color:#16a34a;font-size:9px;padding:2px 7px;border-radius:99px;font-weight:600">Live</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px">
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:8px;text-align:center">
+          <div style="color:#16a34a;font-size:14px;font-weight:700">94.2%</div>
+          <div style="color:#94a3b8;font-size:9px">Sell-through</div>
+        </div>
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:8px;text-align:center">
+          <div style="color:#f59e0b;font-size:14px;font-weight:700">3.1%</div>
+          <div style="color:#94a3b8;font-size:9px">Waste rate</div>
+        </div>
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:8px;text-align:center">
+          <div style="color:#6366f1;font-size:14px;font-weight:700">$12.4K</div>
+          <div style="color:#94a3b8;font-size:9px">Rescued GMV</div>
+        </div>
+      </div>
+      <div style="background:#6366f1;border-radius:5px;padding:8px;text-align:center">
+        <div style="color:#fff;font-size:10px;font-weight:600">▶ Run Recommendation Engine</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Clean SaaS</h3>
+      <p>White background, indigo primary, subtle shadows. Looks like Linear/Vercel. Professional, investor-friendly, easy to demo in bright rooms.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="green-ops" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#052e16;padding:16px;border-radius:6px;font-family:system-ui">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div style="color:#4ade80;font-size:12px;font-weight:700;letter-spacing:2px">SYNAPTOS</div>
+        <div style="color:#86efac;font-size:9px">● CHAIN HQ</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px">
+        <div style="background:#14532d;border:1px solid #166534;border-radius:4px;padding:8px;text-align:center">
+          <div style="color:#4ade80;font-size:14px;font-weight:700">94.2%</div>
+          <div style="color:#86efac;font-size:9px">SELL-THROUGH</div>
+        </div>
+        <div style="background:#14532d;border:1px solid #166534;border-radius:4px;padding:8px;text-align:center">
+          <div style="color:#fbbf24;font-size:14px;font-weight:700">3.1%</div>
+          <div style="color:#86efac;font-size:9px">WASTE RATE</div>
+        </div>
+        <div style="background:#14532d;border:1px solid #166534;border-radius:4px;padding:8px;text-align:center">
+          <div style="color:#4ade80;font-size:14px;font-weight:700">$12.4K</div>
+          <div style="color:#86efac;font-size:9px">RESCUED GMV</div>
+        </div>
+      </div>
+      <div style="background:#16a34a;border-radius:4px;padding:8px;text-align:center">
+        <div style="color:#fff;font-size:10px;font-weight:700">▶ RUN RECOMMENDATION ENGINE</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Green Ops</h3>
+      <p>Deep forest green with lime accents. Reinforces the sustainability/ESG brand story. Unique, memorable, ties directly to SDG 12 identity.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:16px">Click a card to select. Take a look at <strong>http://localhost:55358</strong> and reply here with your choice.</p>

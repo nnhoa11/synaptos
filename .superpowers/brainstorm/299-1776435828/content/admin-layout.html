@@ -1,0 +1,120 @@
+<h2>Admin Dashboard Layout</h2>
+<p class="subtitle">Corporate light mode — 4px radius, dark navy accents. Which sidebar style fits best?</p>
+
+<div class="split">
+
+  <div class="mockup" data-choice="sidebar-icons" onclick="toggleSelect(this)" style="cursor:pointer">
+    <div class="mockup-header">A — Sidebar with icons + labels</div>
+    <div class="mockup-body" style="padding:0;overflow:hidden;background:#f1f5f9;display:flex;min-height:260px">
+      <!-- Sidebar -->
+      <div style="width:180px;background:#0f172a;padding:12px 0;flex-shrink:0">
+        <div style="padding:10px 14px;margin-bottom:8px">
+          <span style="color:#fff;font-size:11px;font-weight:700;letter-spacing:2px">SYNAPTOS</span>
+          <div style="color:#64748b;font-size:9px;margin-top:2px">Chain HQ</div>
+        </div>
+        <div style="padding:7px 14px;background:#1e293b;border-left:3px solid #3b82f6;color:#fff;font-size:10px;display:flex;align-items:center;gap:8px">
+          <span>⬛</span> Dashboard
+        </div>
+        <div style="padding:7px 14px;color:#94a3b8;font-size:10px;display:flex;align-items:center;gap:8px">
+          <span>🏪</span> Chains
+        </div>
+        <div style="padding:7px 14px;color:#94a3b8;font-size:10px;display:flex;align-items:center;gap:8px">
+          <span>⚙️</span> Recommendations
+        </div>
+        <div style="padding:7px 14px;color:#94a3b8;font-size:10px;display:flex;align-items:center;gap:8px">
+          <span>📢</span> Campaigns
+        </div>
+        <div style="padding:7px 14px;color:#94a3b8;font-size:10px;display:flex;align-items:center;gap:8px">
+          <span>✅</span> Approvals
+          <span style="background:#ef4444;color:#fff;font-size:8px;padding:1px 5px;border-radius:99px;margin-left:auto">3</span>
+        </div>
+        <div style="padding:7px 14px;color:#94a3b8;font-size:10px;display:flex;align-items:center;gap:8px">
+          <span>📄</span> Tax Write-off
+        </div>
+        <div style="padding:7px 14px;color:#94a3b8;font-size:10px;display:flex;align-items:center;gap:8px">
+          <span>🌿</span> SDG Report
+        </div>
+        <div style="padding:7px 14px;color:#94a3b8;font-size:10px;display:flex;align-items:center;gap:8px">
+          <span>🔧</span> Settings
+        </div>
+      </div>
+      <!-- Main content -->
+      <div style="flex:1;padding:12px">
+        <div style="color:#0f172a;font-size:12px;font-weight:700;margin-bottom:8px">Chain Overview</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px">
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:4px;padding:8px">
+            <div style="color:#64748b;font-size:8px;text-transform:uppercase;letter-spacing:1px">Rescued GMV</div>
+            <div style="color:#0f172a;font-size:16px;font-weight:700">$12.4K</div>
+            <div style="color:#16a34a;font-size:8px">↑ 18% vs last week</div>
+          </div>
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:4px;padding:8px">
+            <div style="color:#64748b;font-size:8px;text-transform:uppercase;letter-spacing:1px">Waste Rate</div>
+            <div style="color:#0f172a;font-size:16px;font-weight:700">3.1%</div>
+            <div style="color:#16a34a;font-size:8px">↓ from 18.4% baseline</div>
+          </div>
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:4px;padding:8px">
+            <div style="color:#64748b;font-size:8px;text-transform:uppercase;letter-spacing:1px">Active Stores</div>
+            <div style="color:#0f172a;font-size:16px;font-weight:700">3 / 3</div>
+            <div style="color:#16a34a;font-size:8px">All stores live</div>
+          </div>
+        </div>
+        <div style="background:#0f172a;border-radius:4px;padding:8px;display:flex;align-items:center;justify-content:space-between">
+          <span style="color:#fff;font-size:10px;font-weight:600">Run Recommendation Engine</span>
+          <span style="background:#3b82f6;color:#fff;font-size:9px;padding:3px 10px;border-radius:4px">▶ Run</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup" data-choice="topnav-tabs" onclick="toggleSelect(this)" style="cursor:pointer">
+    <div class="mockup-header">B — Top nav + content tabs</div>
+    <div class="mockup-body" style="padding:0;overflow:hidden;background:#f8fafc;min-height:260px">
+      <!-- Top nav -->
+      <div style="background:#0f172a;padding:8px 14px;display:flex;align-items:center;justify-content:space-between">
+        <span style="color:#fff;font-size:11px;font-weight:700;letter-spacing:2px">SYNAPTOS</span>
+        <div style="display:flex;gap:12px">
+          <span style="color:#94a3b8;font-size:9px">Chains</span>
+          <span style="color:#94a3b8;font-size:9px">Campaigns</span>
+          <span style="color:#fff;font-size:9px;border-bottom:2px solid #3b82f6;padding-bottom:2px">Dashboard</span>
+          <span style="color:#94a3b8;font-size:9px">Reports</span>
+          <span style="background:#ef4444;color:#fff;font-size:8px;padding:1px 6px;border-radius:4px">3 Approvals</span>
+        </div>
+        <span style="color:#64748b;font-size:9px">Admin ▾</span>
+      </div>
+      <!-- Sub tabs -->
+      <div style="background:#fff;border-bottom:1px solid #e2e8f0;padding:0 14px;display:flex;gap:16px">
+        <span style="color:#3b82f6;font-size:9px;padding:7px 0;border-bottom:2px solid #3b82f6">Overview</span>
+        <span style="color:#94a3b8;font-size:9px;padding:7px 0">Stores</span>
+        <span style="color:#94a3b8;font-size:9px;padding:7px 0">Performance</span>
+      </div>
+      <!-- Content -->
+      <div style="padding:12px">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-bottom:8px">
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:4px;padding:8px">
+            <div style="color:#64748b;font-size:8px">RESCUED GMV</div>
+            <div style="color:#0f172a;font-size:15px;font-weight:700">$12.4K</div>
+          </div>
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:4px;padding:8px">
+            <div style="color:#64748b;font-size:8px">WASTE RATE</div>
+            <div style="color:#0f172a;font-size:15px;font-weight:700">3.1%</div>
+          </div>
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:4px;padding:8px">
+            <div style="color:#64748b;font-size:8px">SELL-THROUGH</div>
+            <div style="color:#0f172a;font-size:15px;font-weight:700">94.2%</div>
+          </div>
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:4px;padding:8px">
+            <div style="color:#64748b;font-size:8px">AI LOOPS</div>
+            <div style="color:#0f172a;font-size:15px;font-weight:700">1,248</div>
+          </div>
+        </div>
+        <div style="background:#0f172a;border-radius:4px;padding:8px;display:flex;align-items:center;justify-content:space-between">
+          <span style="color:#fff;font-size:10px;font-weight:600">Run Recommendation Engine</span>
+          <span style="background:#3b82f6;color:#fff;font-size:9px;padding:3px 10px;border-radius:4px">▶ Run</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:16px">Click a layout to select, then reply here. Or suggest changes.</p>
