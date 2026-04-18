@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { io } from "socket.io-client";
 import AlertFeed from "@/components/admin/AlertFeed";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
@@ -7,6 +9,51 @@ import Card from "@/components/ui/Card";
 import styles from "@/components/admin/ControlTowerOverview.module.css";
 import { formatAuditTime, shortCurrency } from "@/lib/prototype-core";
 import { formatPercent } from "@/lib/ui-format";
+
+function SyncHealthRow({ stores = [] }) {
+  const [healthMap, setHealthMap] = useState({});
+
+  useEffect(() => {
+    const socket = io({ query: { admin: "1" } });
+    socket.on("room:meta", (meta) => {
+      if (!meta?.storeId) return;
+      setHealthMap((current) => ({
+        ...current,
+        [meta.storeId]: { clientCount: meta.clientCount ?? 0, at: meta.at },
+      }));
+    });
+    return () => socket.disconnect();
+  }, []);
+
+  if (!stores.length) return null;
+
+  return (
+    <div className="sync-health-row">
+      {stores.map((store) => {
+        const health = healthMap[store.id];
+        const connected = health?.clientCount > 0;
+        const secAgo = health?.at ? Math.round((Date.now() - health.at) / 1000) : null;
+        return (
+          <div
+            key={store.id}
+            className={`sync-badge${health && !connected ? " sync-badge--warning" : ""}`}
+          >
+            <span className={`pipeline-dot ${connected ? "is-green" : health ? "is-amber" : "is-gray"}`} />
+            <strong>{store.id}</strong>
+            {health ? (
+              <>
+                <span>· {health.clientCount} client{health.clientCount !== 1 ? "s" : ""}</span>
+                {secAgo !== null ? <span>· last event {secAgo}s ago</span> : null}
+              </>
+            ) : (
+              <span className="metric-footnote">· no data</span>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 function compactNumber(value) {
   return new Intl.NumberFormat("en-US", {
@@ -334,6 +381,7 @@ export default function ControlTowerOverview({
 
   return (
     <section className={styles.overview}>
+      <SyncHealthRow stores={stores ?? []} />
       <div className={styles.heroBand}>
         <Card className={styles.heroPanel}>
           <Card.Body className={styles.heroBody}>

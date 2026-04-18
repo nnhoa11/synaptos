@@ -15,6 +15,9 @@ export default function POSApp({ storeId }) {
   const [storefront, setStorefront] = useState(null);
   const [cart, setCart] = useState([]);
   const [connectionStatus, setConnectionStatus] = useState("connecting");
+  const [clientCount, setClientCount] = useState(null);
+  const [eventTicker, setEventTicker] = useState(null);
+  const [lastUpdatedSkuId, setLastUpdatedSkuId] = useState(null);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [shrinkageOpen, setShrinkageOpen] = useState(false);
   const [overrideOpen, setOverrideOpen] = useState(false);
@@ -35,34 +38,47 @@ export default function POSApp({ storeId }) {
     const socket = io({ query: { storeId } });
     socket.on("connect", () => setConnectionStatus("connected"));
     socket.on("disconnect", () => setConnectionStatus("reconnecting"));
+    socket.on("room:meta", (meta) => setClientCount(meta.clientCount ?? null));
     socket.on("price-update", (payload) => {
-      setStorefront((current) =>
-        current
-          ? {
-              ...current,
-              products: current.products.map((product) =>
-                product.skuId === payload.sku_id
-                  ? {
-                      ...product,
-                      currentPrice: payload.current_price,
-                      originalPrice: payload.original_price,
-                      discountPct: payload.discount_pct,
-                      quantity: payload.quantity ?? product.quantity,
-                      category: payload.category ?? product.category,
-                      itemTraffic: payload.item_traffic ?? product.itemTraffic,
-                      recentVelocity: payload.recent_velocity ?? product.recentVelocity,
-                      sellThroughProbability:
-                        payload.sell_through_probability ?? product.sellThroughProbability,
-                      stockoutRisk: payload.stockout_risk ?? product.stockoutRisk,
-                      spoilageRisk: payload.spoilage_risk ?? product.spoilageRisk,
-                      statusTone: payload.status_tone ?? product.statusTone,
-                      snapshotKey: payload.snapshot_key ?? product.snapshotKey,
-                    }
-                  : product
-              ),
-            }
-          : current
-      );
+      setStorefront((current) => {
+        if (!current) return current;
+        const updated = current.products.find((p) => p.skuId === payload.sku_id);
+        if (updated) {
+          setEventTicker({
+            skuName: updated.productName,
+            oldPrice: updated.currentPrice,
+            newPrice: payload.current_price,
+            timestamp: new Date().toLocaleTimeString(),
+          });
+          setLastUpdatedSkuId(payload.sku_id);
+          setTimeout(() => {
+            setEventTicker(null);
+            setLastUpdatedSkuId(null);
+          }, 3000);
+        }
+        return {
+          ...current,
+          products: current.products.map((product) =>
+            product.skuId === payload.sku_id
+              ? {
+                  ...product,
+                  currentPrice: payload.current_price,
+                  originalPrice: payload.original_price,
+                  discountPct: payload.discount_pct,
+                  quantity: payload.quantity ?? product.quantity,
+                  category: payload.category ?? product.category,
+                  itemTraffic: payload.item_traffic ?? product.itemTraffic,
+                  recentVelocity: payload.recent_velocity ?? product.recentVelocity,
+                  sellThroughProbability: payload.sell_through_probability ?? product.sellThroughProbability,
+                  stockoutRisk: payload.stockout_risk ?? product.stockoutRisk,
+                  spoilageRisk: payload.spoilage_risk ?? product.spoilageRisk,
+                  statusTone: payload.status_tone ?? product.statusTone,
+                  snapshotKey: payload.snapshot_key ?? product.snapshotKey,
+                }
+              : product
+          ),
+        };
+      });
       setCart((current) =>
         current.map((item) =>
           item.skuId === payload.sku_id && !item.manualOverride
@@ -165,15 +181,38 @@ export default function POSApp({ storeId }) {
   return (
     <div className="pos-page">
       <POSHeader
+        address={storefront?.store?.address}
         cashier={cashier}
+        clientCount={clientCount}
         connectionStatus={connectionStatus}
         onEndShift={() => setShiftSummaryOpen(true)}
         onManagerOverride={() => setOverrideOpen(true)}
+        storeId={storeId}
         storeName={storefront?.store?.name ?? storeId}
       />
+      {connectionStatus === "reconnecting" ? (
+        <div className="reconnecting-bar">
+          <span className="pipeline-dot is-amber" />
+          Reconnecting to {storeId} store room… Prices shown may be out of date.
+        </div>
+      ) : null}
       <div className="pos-layout">
         <div className="pos-product-grid">
-          <ProductGrid onAddToCart={addToCart} products={storefront?.products ?? []} />
+          {eventTicker ? (
+            <div className="event-ticker">
+              <span>↓ price-update</span>
+              <strong>{eventTicker.skuName}</strong>
+              <span className="event-ticker__old">{eventTicker.oldPrice?.toLocaleString()}</span>
+              <span>→</span>
+              <span className="event-ticker__new">{eventTicker.newPrice?.toLocaleString()} VND</span>
+              <span className="metric-footnote">{eventTicker.timestamp}</span>
+            </div>
+          ) : null}
+          <ProductGrid
+            lastUpdatedSkuId={lastUpdatedSkuId}
+            onAddToCart={addToCart}
+            products={storefront?.products ?? []}
+          />
         </div>
         <CartPanel
           items={cart}

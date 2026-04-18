@@ -1,0 +1,274 @@
+<style>
+  body { font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif; }
+  .section { margin-bottom: 36px; }
+  .screen-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #64748b; margin-bottom: 12px; }
+
+  /* ── Proposal card ── */
+  .proposal-card {
+    border: 2px solid #d1d9e6; border-radius: 4px; background: #fff;
+    overflow: hidden; margin-bottom: 12px;
+  }
+  .proposal-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px; gap: 12px; border-bottom: 1px solid #f0f2f5;
+  }
+  .proposal-left { display: flex; flex-direction: column; gap: 4px; }
+  .proposal-sku { font-size: 14px; font-weight: 700; color: #0f2048; }
+  .proposal-meta { font-size: 11.5px; color: #5c6878; display: flex; gap: 10px; flex-wrap: wrap; }
+  .proposal-right { display: flex; gap: 8px; align-items: center; }
+  .badge {
+    padding: 2px 8px; border-radius: 3px; font-size: 10.5px; font-weight: 700;
+    letter-spacing: 0.04em; text-transform: uppercase; border: 1.5px solid;
+  }
+  .badge-red    { background:#fef2f2; border-color:#fecaca; color:#dc2626; }
+  .badge-blue   { background:#eff6ff; border-color:#bfdbfe; color:#1d4ed8; }
+  .badge-green  { background:#f0fdf4; border-color:#bbf7d0; color:#059669; }
+  .badge-amber  { background:#fffbeb; border-color:#fde68a; color:#b45309; }
+  .badge-gray   { background:#f8fafc; border-color:#e2e8f0; color:#5c6878; }
+
+  /* ── Audit chain ── */
+  .audit-chain {
+    padding: 14px 16px; background: #f7f8fa;
+    border-top: 2px solid #d1d9e6;
+    display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 0;
+  }
+  .audit-step {
+    display: flex; flex-direction: column; gap: 4px; padding: 0 12px; position: relative;
+  }
+  .audit-step:first-child { padding-left: 0; }
+  .audit-step:not(:last-child)::after {
+    content: "→";
+    position: absolute; right: -6px; top: 50%; transform: translateY(-50%);
+    font-size: 16px; color: #d1d9e6; font-weight: 300;
+  }
+  .audit-step-label {
+    font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: #5c6878;
+  }
+  .audit-step-title { font-size: 12.5px; font-weight: 700; color: #0f2048; line-height: 1.3; }
+  .audit-step-detail { font-size: 11px; color: #5c6878; line-height: 1.4; }
+  .audit-step-value {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11.5px; font-weight: 600; color: #0f2048; margin-top: 2px;
+  }
+  .confidence-bar {
+    display: inline-block; width: 48px; height: 3px;
+    background: #d1d9e6; border-radius: 999px; overflow: hidden; vertical-align: middle;
+  }
+  .confidence-fill { height: 100%; background: #059669; border-radius: 999px; }
+
+  /* ── Approval card variant ── */
+  .approval-card {
+    border: 2px solid #fde68a; border-radius: 4px; background: #fffbf5;
+    overflow: hidden; margin-bottom: 12px;
+  }
+  .approval-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px; gap: 12px;
+  }
+  .approval-flag {
+    font-size: 10.5px; font-weight: 700; color: #b45309;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 3px 8px; background: #fffbeb; border: 1.5px solid #fde68a; border-radius: 3px;
+  }
+  .approval-audit {
+    padding: 12px 16px; background: #fff;
+    border-top: 2px solid #fde68a;
+    display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 0;
+  }
+  .approval-actions {
+    display: flex; gap: 8px; padding: 12px 16px;
+    border-top: 1px solid #fde68a;
+  }
+  .btn-approve {
+    padding: 6px 14px; border: 2px solid #059669; border-radius: 3px;
+    background: #059669; color: #fff; font-size: 12px; font-weight: 600; cursor: pointer;
+  }
+  .btn-reject {
+    padding: 6px 14px; border: 2px solid #d1d9e6; border-radius: 3px;
+    background: #fff; color: #5c6878; font-size: 12px; font-weight: 600; cursor: pointer;
+  }
+  .btn-modify {
+    padding: 6px 14px; border: 2px solid #bfdbfe; border-radius: 3px;
+    background: #eff6ff; color: #1d4ed8; font-size: 12px; font-weight: 600; cursor: pointer;
+  }
+
+  /* ── Reasoning tooltip ── */
+  .reasoning-box {
+    margin-top: 8px; padding: 10px 12px;
+    border: 1.5px solid #bfdbfe; border-radius: 3px; background: #f8fbff;
+    font-size: 11.5px; color: #1e3a5f; line-height: 1.6;
+  }
+  .reasoning-box strong { color: #0f2048; }
+
+  .divider { border: 0; border-top: 2px solid #f0f2f5; margin: 24px 0; }
+</style>
+
+<h2>Section 2 — Decision Audit Trail</h2>
+<p class="subtitle">Every proposal shows the 4-step chain: Signal → Risk → Guardrail → Execution. No more black box.</p>
+
+<div class="section">
+  <div class="screen-label">Auto-dispatched markdown (confidence ≥ 0.6, discount ≤ 50%)</div>
+
+  <div class="proposal-card">
+    <div class="proposal-head">
+      <div class="proposal-left">
+        <div class="proposal-sku">Cá Hồi Na Uy 300g <span style="font-weight:400;font-size:12px;color:#5c6878;">· LOT-BHX44-SEAFOOD-0412</span></div>
+        <div class="proposal-meta">
+          <span>BHX_44NguyenHue_D1</span>
+          <span>·</span>
+          <span>Seafood · 47 units</span>
+          <span>·</span>
+          <span>⏱ T−6h to expiry</span>
+        </div>
+      </div>
+      <div class="proposal-right">
+        <span class="badge badge-red">−28% markdown</span>
+        <span class="badge badge-green">Auto-dispatched</span>
+      </div>
+    </div>
+
+    <div class="audit-chain">
+      <div class="audit-step">
+        <div class="audit-step-label">① Signal</div>
+        <div class="audit-step-title">Weather + Velocity</div>
+        <div class="audit-step-detail">33°C · District 1<br>Velocity dropped 0.8→0.3 last 2h</div>
+      </div>
+      <div class="audit-step">
+        <div class="audit-step-label">② Risk Score</div>
+        <div class="audit-step-title">Spoilage Risk</div>
+        <div class="audit-step-detail">
+          <div class="audit-step-value">
+            0.87
+            <span class="confidence-bar"><span class="confidence-fill" style="width:87%;background:#dc2626;"></span></span>
+          </div>
+          Sell-through: 0.23
+        </div>
+      </div>
+      <div class="audit-step">
+        <div class="audit-step-label">③ Guardrail</div>
+        <div class="audit-step-title">Auto-label</div>
+        <div class="audit-step-detail">Confidence 0.91 &gt; 0.60<br>Discount 28% ≤ 50% threshold</div>
+      </div>
+      <div class="audit-step">
+        <div class="audit-step-label">④ Execution</div>
+        <div class="audit-step-title">Label Executor</div>
+        <div class="audit-step-detail">Price: 86,170 → 62,042 VND<br>E-ink + POS updated via socket</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<div class="section">
+  <div class="screen-label">Pending approval (discount &gt; 50% OR confidence &lt; 0.6) — shown in Approvals tab</div>
+
+  <div class="approval-card">
+    <div class="approval-head">
+      <div class="proposal-left">
+        <div class="proposal-sku">Rau Muống Tươi 500g <span style="font-weight:400;font-size:12px;color:#92400e;">· LOT-BHX44-VEG-0089</span></div>
+        <div class="proposal-meta" style="color:#92400e;">
+          <span>BHX_44NguyenHue_D1</span>
+          <span>·</span>
+          <span>Vegetables · 23 units</span>
+          <span>·</span>
+          <span>⏱ T−2h to expiry</span>
+        </div>
+      </div>
+      <div class="proposal-right">
+        <span class="approval-flag">⚠ Manager Review Required</span>
+        <span class="badge badge-amber">−62% markdown</span>
+      </div>
+    </div>
+
+    <div class="approval-audit audit-chain" style="background:#fffbf0;border-top-color:#fde68a;">
+      <div class="audit-step">
+        <div class="audit-step-label">① Signal</div>
+        <div class="audit-step-title">Expiry + Rain</div>
+        <div class="audit-step-detail">T−2h critical window<br>Heavy rain · Foot traffic −40%</div>
+      </div>
+      <div class="audit-step">
+        <div class="audit-step-label">② Risk Score</div>
+        <div class="audit-step-title">Near-certain waste</div>
+        <div class="audit-step-detail">
+          <div class="audit-step-value">
+            0.96
+            <span class="confidence-bar"><span class="confidence-fill" style="width:96%;background:#dc2626;"></span></span>
+          </div>
+          Sell-through: 0.08
+        </div>
+      </div>
+      <div class="audit-step">
+        <div class="audit-step-label">③ Guardrail</div>
+        <div class="audit-step-title">Human gate</div>
+        <div class="audit-step-detail">Discount 62% &gt; 50% limit<br>Routed to approval queue</div>
+      </div>
+      <div class="audit-step">
+        <div class="audit-step-label">④ Waiting</div>
+        <div class="audit-step-title">Pending manager</div>
+        <div class="audit-step-detail">
+          <div class="reasoning-box">
+            <strong>AI rationale:</strong> At T−2h with −40% foot traffic, a 62% markdown recovers more value than guaranteed waste loss of ~4,600 VND/unit. Residential zone — price-sensitive buyers likely to clear stock.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="approval-actions">
+      <button class="btn-approve">✓ Approve −62%</button>
+      <button class="btn-modify">Edit discount</button>
+      <button class="btn-reject">✗ Reject</button>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<div class="section">
+  <div class="screen-label">EOL routed (T−4h + unsaleable) — routed to logistics, not E-ink</div>
+
+  <div class="proposal-card" style="border-color:#fecaca;background:#fff8f8;">
+    <div class="proposal-head" style="border-bottom-color:#fee2e2;">
+      <div class="proposal-left">
+        <div class="proposal-sku" style="color:#991b1b;">Bún Tươi Phú Hương 400g <span style="font-weight:400;font-size:12px;color:#b91c1c;">· LOT-BHX23-NOODLE-0031</span></div>
+        <div class="proposal-meta" style="color:#b91c1c;">
+          <span>BHX_23CachMangThang8_D3</span>
+          <span>·</span>
+          <span>Noodles · 12 units</span>
+          <span>·</span>
+          <span>⏱ T−3.5h · commercial clearance failed</span>
+        </div>
+      </div>
+      <div class="proposal-right">
+        <span class="badge badge-red">EOL Route</span>
+        <span class="badge badge-gray">Off-shelf</span>
+      </div>
+    </div>
+    <div class="audit-chain" style="background:#fff5f5;border-top:2px solid #fecaca;">
+      <div class="audit-step">
+        <div class="audit-step-label">① Signal</div>
+        <div class="audit-step-title">Expiry critical</div>
+        <div class="audit-step-detail">T−3.5h, max markdown<br>already applied at T−8h</div>
+      </div>
+      <div class="audit-step">
+        <div class="audit-step-label">② Risk Score</div>
+        <div class="audit-step-title">Unsaleable</div>
+        <div class="audit-step-detail">
+          <div class="audit-step-value">0.99 <span class="confidence-bar"><span class="confidence-fill" style="width:99%;background:#dc2626;"></span></span></div>
+          Commercial window: closed
+        </div>
+      </div>
+      <div class="audit-step">
+        <div class="audit-step-label">③ Guardrail</div>
+        <div class="audit-step-title">EOL trigger</div>
+        <div class="audit-step-detail">Route: logistics<br>Revoke from sales floor</div>
+      </div>
+      <div class="audit-step">
+        <div class="audit-step-label">④ Execution</div>
+        <div class="audit-step-title">Logistics Executor</div>
+        <div class="audit-step-detail">Tax write-off filed<br>SDG 12 carbon saved: 0.8 kg CO₂</div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,254 @@
+<style>
+  body { font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif; }
+  .section { margin-bottom: 36px; }
+  .screen-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #64748b; margin-bottom: 12px; }
+  .divider { border: 0; border-top: 2px solid #f0f2f5; margin: 24px 0; }
+
+  /* ── POS Header ── */
+  .pos-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 20px; height: 56px; background: #fff;
+    border: 2px solid #d1d9e6; border-radius: 4px; margin-bottom: 8px;
+  }
+  .pos-left { display: flex; flex-direction: column; gap: 1px; }
+  .pos-brand { font-size: 11px; font-weight: 800; letter-spacing: 0.18em; color: #0f2048; text-transform: uppercase; }
+  .pos-store { font-size: 12px; font-weight: 700; color: #1d4ed8; }
+  .pos-right { display: flex; gap: 10px; align-items: center; }
+
+  /* ── E-ink header ── */
+  .eink-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 16px; height: 52px; background: #fff;
+    border: 2px solid #d1d9e6; border-radius: 4px 4px 0 0; border-bottom: 2px solid #d1d9e6;
+  }
+
+  /* ── Sync badge ── */
+  .sync-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 3px;
+    border: 2px solid #bbf7d0; background: #f0fdf4;
+    font-size: 11px; font-weight: 700; color: #059669; letter-spacing: 0.03em;
+  }
+  .sync-badge.warning {
+    border-color: #fde68a; background: #fffbeb; color: #b45309;
+  }
+  .sync-badge.error {
+    border-color: #fecaca; background: #fef2f2; color: #dc2626;
+  }
+  .sync-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #059669; flex-shrink: 0;
+  }
+  .sync-dot.warning { background: #d97706; }
+  .sync-dot.error   { background: #dc2626; }
+
+  /* ── Last event ticker ── */
+  .event-ticker {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 12px; background: #f7f8fa;
+    border: 1px solid #e2e8f0; border-radius: 3px;
+    font-size: 11px; color: #5c6878;
+  }
+  .event-ticker strong { color: #0f2048; }
+  .event-ticker .price-old { text-decoration: line-through; color: #9ca3af; }
+  .event-ticker .price-new { color: #dc2626; font-weight: 700; }
+
+  /* ── Product card with sync flash ── */
+  .product-card {
+    border: 2px solid #d1d9e6; border-radius: 4px; background: #fff;
+    padding: 12px; width: 180px;
+  }
+  .product-card.updated {
+    border-color: #1d4ed8; background: #f8fbff;
+  }
+  .product-card .sku-name { font-size: 12px; font-weight: 700; color: #0f2048; margin-bottom: 4px; }
+  .product-card .cat { font-size: 10px; color: #5c6878; margin-bottom: 8px; }
+  .product-card .price { font-size: 18px; font-weight: 700; color: #0f2048; }
+  .product-card .price.sale { color: #dc2626; }
+  .product-card .original { font-size: 11px; color: #9ca3af; text-decoration: line-through; }
+  .sale-badge {
+    display: inline-block; background: #dc2626; color: #fff;
+    font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 2px;
+    letter-spacing: 0.04em; margin-top: 4px;
+  }
+  .updated-label {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 10px; color: #1d4ed8; font-weight: 600; margin-top: 6px;
+  }
+
+  /* ── Price tile ── */
+  .price-tile {
+    border: 2px solid #d1d9e6; border-radius: 4px; background: #fff;
+    padding: 10px 8px; width: 120px; text-align: left;
+  }
+  .price-tile.sale { border-color: #fecaca; background: #fff5f5; }
+  .price-tile.updated { border-color: #1d4ed8; }
+  .price-tile .tile-name { font-size: 9.5px; font-weight: 700; color: #0f2048; margin-bottom: 4px; }
+  .price-tile .tile-price { font-size: 15px; font-weight: 700; color: #0f2048; }
+  .price-tile.sale .tile-price { color: #dc2626; }
+  .price-tile .tile-meta { font-size: 9px; color: #5c6878; margin-top: 2px; }
+  .tile-updated { font-size: 9px; color: #1d4ed8; font-weight: 600; margin-top: 4px; }
+
+  /* ── Split view ── */
+  .split-screens {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  }
+  .screen-box {
+    border: 2px solid #d1d9e6; border-radius: 4px; overflow: hidden; background: #f7f8fa;
+  }
+  .screen-box-header {
+    padding: 8px 12px; background: #fff; border-bottom: 2px solid #d1d9e6;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    color: #5c6878; display: flex; align-items: center; gap: 8px;
+  }
+  .screen-box-body { padding: 12px; }
+
+  /* ── Store room indicator ── */
+  .store-room {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px; background: #eff6ff;
+    border: 2px solid #bfdbfe; border-radius: 3px;
+    font-size: 11.5px; font-weight: 600; color: #1d4ed8;
+    margin-bottom: 12px;
+  }
+  .store-room-icon { font-size: 14px; }
+
+  /* ── Reconnecting state ── */
+  .reconnecting-bar {
+    padding: 6px 12px; background: #fffbeb;
+    border-bottom: 2px solid #fde68a;
+    font-size: 11px; color: #b45309; font-weight: 600;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .btn {
+    padding: 5px 12px; border-radius: 3px; font-size: 11.5px; font-weight: 600;
+    cursor: pointer; border: 2px solid;
+  }
+  .btn-primary { background: #0f2048; border-color: #0f2048; color: #fff; }
+  .btn-secondary { background: #fff; border-color: #d1d9e6; color: #5c6878; }
+  .badge {
+    padding: 2px 7px; border-radius: 3px; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.04em; text-transform: uppercase; border: 1.5px solid;
+  }
+  .badge-blue { background:#eff6ff; border-color:#bfdbfe; color:#1d4ed8; }
+</style>
+
+<h2>Section 3 — Live Sync Story</h2>
+<p class="subtitle">POS and E-ink both make it visually obvious they are in the same live store room — same WebSocket channel, same price events.</p>
+
+<div class="section">
+  <div class="screen-label">Store room indicator — appears in both POS and E-ink headers</div>
+  <div class="store-room">
+    <span class="store-room-icon">⬡</span>
+    <strong>Store room:</strong> BHX_44NguyenHue_D1 &nbsp;·&nbsp; socket.io channel active &nbsp;·&nbsp; 3 clients connected
+  </div>
+  <p style="font-size:11px;color:#5c6878;margin:0;">Same line rendered in both POS and E-ink headers. Judge sees POS + e-ink open side-by-side and immediately reads that they're the same room.</p>
+</div>
+
+<hr class="divider">
+
+<div class="section">
+  <div class="screen-label">Side-by-side: what happens the moment a price-update event fires</div>
+  <div class="split-screens">
+    <div class="screen-box">
+      <div class="screen-box-header">
+        <span class="sync-dot"></span> POS — BHX_44NguyenHue_D1
+        <span class="badge badge-blue" style="margin-left:auto;">LIVE</span>
+      </div>
+      <div class="screen-box-body">
+        <div class="event-ticker" style="margin-bottom:10px;">
+          ↓ price-update &nbsp;·&nbsp; <strong>Cá Hồi Na Uy 300g</strong> &nbsp;
+          <span class="price-old">86,170</span> → <span class="price-new">62,042 VND</span>
+          &nbsp;·&nbsp; 08:43:02
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <div class="product-card updated">
+            <div class="sku-name">Cá Hồi Na Uy 300g</div>
+            <div class="cat">Seafood · Qty 47</div>
+            <div class="price sale">62,042 VND</div>
+            <div class="original">86,170 VND</div>
+            <div class="sale-badge">SALE −28%</div>
+            <div class="updated-label">↑ Just updated</div>
+          </div>
+          <div class="product-card">
+            <div class="sku-name">Rau Muống Tươi 500g</div>
+            <div class="cat">Vegetables · Qty 23</div>
+            <div class="price">12,500 VND</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen-box">
+      <div class="screen-box-header">
+        <span class="sync-dot"></span> E-ink Display — BHX_44NguyenHue_D1
+        <span class="badge badge-blue" style="margin-left:auto;">LIVE</span>
+      </div>
+      <div class="screen-box-body">
+        <div class="event-ticker" style="margin-bottom:10px;">
+          ↓ price-update &nbsp;·&nbsp; <strong>Cá Hồi Na Uy 300g</strong> &nbsp;
+          <span class="price-old">86,170</span> → <span class="price-new">62,042 VND</span>
+          &nbsp;·&nbsp; 08:43:02
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <div class="price-tile sale updated">
+            <div class="tile-name">Cá Hồi Na Uy 300g</div>
+            <div class="tile-price">62,042</div>
+            <div class="tile-meta">86,170 · SALE −28%</div>
+            <div class="tile-updated">↑ Just updated</div>
+          </div>
+          <div class="price-tile">
+            <div class="tile-name">Rau Muống Tươi 500g</div>
+            <div class="tile-price">12,500</div>
+            <div class="tile-meta">Vegetables · Qty 23</div>
+          </div>
+          <div class="price-tile">
+            <div class="tile-name">Bún Tươi Phú Hương</div>
+            <div class="tile-price">8,200</div>
+            <div class="tile-meta">Noodles · Qty 31</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p style="font-size:11px;color:#5c6878;margin:8px 0 0;">Both surfaces show the same event ticker and highlight the updated tile simultaneously. The "Just updated" label fades after 3 seconds (no animation, just a timed state removal).</p>
+</div>
+
+<hr class="divider">
+
+<div class="section">
+  <div class="screen-label">Reconnecting state — both surfaces show degraded gracefully</div>
+  <div class="screen-box" style="margin-bottom:8px;">
+    <div class="reconnecting-bar">
+      <span class="sync-dot warning"></span>
+      Reconnecting to BHX_44NguyenHue_D1 store room… Prices shown may be up to 45s old.
+    </div>
+    <div class="screen-box-body" style="opacity:0.6;">
+      <div class="price-tile sale">
+        <div class="tile-name">Cá Hồi Na Uy 300g</div>
+        <div class="tile-price">62,042</div>
+        <div class="tile-meta">Last sync: 08:42:17</div>
+      </div>
+    </div>
+  </div>
+  <p style="font-size:11px;color:#5c6878;margin:0;">Amber banner replaces the green sync badge. Tiles dim slightly. Content stays visible — degraded but not broken.</p>
+</div>
+
+<hr class="divider">
+
+<div class="section">
+  <div class="screen-label">Admin Dashboard — chain-level sync health (Control Tower Overview)</div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
+    <div class="sync-badge">
+      <span class="sync-dot"></span> BHX_44NguyenHue_D1 · 3 clients · last event 4s ago
+    </div>
+    <div class="sync-badge">
+      <span class="sync-dot"></span> BHX_23CachMangThang8_D3 · 2 clients · last event 11s ago
+    </div>
+    <div class="sync-badge warning">
+      <span class="sync-dot warning"></span> BHX_78NguyenHuuTho_D7 · reconnecting…
+    </div>
+  </div>
+  <p style="font-size:11px;color:#5c6878;margin:0;">A compact status row in the admin dashboard. Chain HQ sees all 3 store rooms at a glance — no need to navigate into each store to check connectivity.</p>
+</div>

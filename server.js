@@ -6,7 +6,7 @@ const path = require("path");
 const { loadEnvConfig } = require("@next/env");
 const next = require("next");
 const { Server } = require("socket.io");
-const { setIO } = require("./lib/server/server-events.js");
+const { setIO, broadcastRoomMeta } = require("./lib/server/server-events.js");
 const { startCampaignScheduler } = require("./lib/server/campaign-scheduler.js");
 const { startRealtimeOutboxBridge } = require("./lib/server/realtime-outbox.cjs");
 
@@ -85,8 +85,18 @@ app
 
     io.on("connection", (socket) => {
       const storeId = socket.handshake.query.storeId;
+      const isAdmin = socket.handshake.query.admin === "1";
+
+      if (isAdmin) {
+        socket.join("admin:all");
+      }
+
       if (typeof storeId === "string" && storeId) {
         socket.join(`store:${storeId}`);
+        broadcastRoomMeta(io, storeId);
+        socket.on("disconnect", () => {
+          setTimeout(() => broadcastRoomMeta(io, storeId), 50);
+        });
       }
     });
 
