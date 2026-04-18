@@ -3,10 +3,12 @@
 import { useEffect, useState } from "react";
 
 export default function EinkHeader({ address, clientCount, connectionStatus, storeId, storeName }) {
-  const [clock, setClock] = useState(() => new Date().toLocaleTimeString());
+  const [clock, setClock] = useState("");
 
   useEffect(() => {
-    const interval = setInterval(() => setClock(new Date().toLocaleTimeString()), 1000);
+    const syncClock = () => setClock(new Date().toLocaleTimeString());
+    syncClock();
+    const interval = setInterval(syncClock, 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -42,7 +44,7 @@ export default function EinkHeader({ address, clientCount, connectionStatus, sto
       <div className="row" style={{ gap: 14, fontSize: 12 }}>
         <span className={`pipeline-dot ${dotClass}`} />
         <span>{connectionStatus.toUpperCase()}</span>
-        <span>{clock}</span>
+        <span>{clock || "--:--:--"}</span>
       </div>
     </header>
   );

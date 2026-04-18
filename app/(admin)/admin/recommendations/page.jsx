@@ -244,14 +244,6 @@ export default function RecommendationsPage() {
   const [copiedKey, setCopiedKey] = useState("");
   const [error, setError] = useState("");
 
-  if (bootstrap.loading || detailState.loading) {
-    return (
-      <div className="empty-state">
-        <Spinner size="lg" />
-      </div>
-    );
-  }
-
   const detail = detailState.detail;
   const markdownProposals = (detail?.proposals ?? []).filter(
     (proposal) => proposal.proposalType === "markdown" || proposal.executionRoute === "label"
@@ -430,6 +422,14 @@ export default function RecommendationsPage() {
       : detail?.llmMode === "live"
         ? "live"
         : "shadow";
+
+  if (bootstrap.loading || detailState.loading) {
+    return (
+      <div className="empty-state">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
 
   return (
     <div className="page-shell">

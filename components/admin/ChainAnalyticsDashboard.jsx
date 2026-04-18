@@ -274,7 +274,7 @@ function TrafficPulseCard({ analytics, detail }) {
                 HERO_PADDING.top +
                 ((chartHeight - HERO_PADDING.top) * index) / Math.max(1, gridValues.length - 1);
               return (
-                <g key={value}>
+                <g key={`${index}-${value}`}>
                   <line
                     className={styles.gridLine}
                     x1={HERO_PADDING.left}
