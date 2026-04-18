@@ -30,6 +30,51 @@ async function copyText(value, setCopiedKey, key) {
   }
 }
 
+function buildFallbackProposalRows(detail) {
+  return (detail?.currentRecommendations ?? []).map((recommendation) => {
+    const requiresApproval =
+      recommendation.requiresApproval ||
+      Number(recommendation.recommendedDiscountPct ?? 0) >= Number(recommendation.approvalThresholdPct ?? 50);
+    const outcome = requiresApproval ? "requires_approval" : "approved";
+
+    return {
+      id: `fallback-proposal-${recommendation.id}`,
+      sourceId: recommendation.id,
+      skuName: recommendation.skuName,
+      proposalType: "markdown",
+      executionRoute: requiresApproval ? "approval" : "label",
+      recommendedDiscountPct: recommendation.recommendedDiscountPct,
+      proposedPrice: recommendation.activePrice ?? recommendation.recommendedPrice,
+      rationale: recommendation.reasonSummary,
+      status: recommendation.status,
+      storeId: recommendation.storeId,
+      category: recommendation.category,
+      metadata: {
+        riskScore: recommendation.riskScore,
+        confidence: recommendation.lot?.confidenceScore ?? recommendation.confidenceScore ?? 0,
+        sellThroughProbability:
+          recommendation.lot?.sellThroughProbability ?? recommendation.sellThroughProbability ?? 0,
+        hoursToExpiry: recommendation.lot?.hoursToExpiry ?? 0,
+        dataCitation: "live_mock_catalog",
+        category: recommendation.category,
+      },
+      guardrail: {
+        outcome,
+        matchedRule: requiresApproval ? "discount_threshold" : "auto_route",
+        executionRoute: requiresApproval ? "approval" : "label",
+        reason: requiresApproval
+          ? "Discount crossed the manager review threshold."
+          : "Below the auto-dispatch markdown threshold.",
+      },
+      executionTask: {
+        status: requiresApproval ? "pending_approval" : "ready_for_label",
+      },
+      fallbackRecommendation: recommendation,
+      modelRunId: recommendation.modelRunId ?? null,
+    };
+  });
+}
+
 function urgencyTone(level) {
   if (level === "immediate") {
     return "red";
@@ -204,6 +249,7 @@ export default function RecommendationsPage() {
   const markdownProposals = (detail?.proposals ?? []).filter(
     (proposal) => proposal.proposalType === "markdown" || proposal.executionRoute === "label"
   );
+  const effectiveProposalRows = detail?.proposals?.length ? detail.proposals : buildFallbackProposalRows(detail);
   const effectiveMarkdowns = markdownProposals.length
     ? markdownProposals
     : (detail?.currentRecommendations ?? []).map((recommendation) => ({
@@ -252,6 +298,58 @@ export default function RecommendationsPage() {
       rescueValue: totalRescueValue,
     };
   }, [detail, effectiveMarkdowns]);
+
+  const drawerFallbackContent = useMemo(() => {
+    if (!selectedProposal) {
+      return null;
+    }
+
+    const source = selectedProposal.fallbackRecommendation ?? null;
+    if (!source) {
+      return null;
+    }
+
+    return (
+      <div className="stack">
+        <div className="grid-3">
+          <div className="ui-card ui-card--padded">
+            <p className="metric-label">SKU</p>
+            <strong>{source.skuName}</strong>
+          </div>
+          <div className="ui-card ui-card--padded">
+            <p className="metric-label">Route</p>
+            <strong>{selectedProposal.executionRoute}</strong>
+          </div>
+          <div className="ui-card ui-card--padded">
+            <p className="metric-label">Discount</p>
+            <strong>{source.recommendedDiscountPct ?? 0}%</strong>
+          </div>
+        </div>
+        <div className="grid-3">
+          <div className="ui-card ui-card--padded">
+            <p className="metric-label">Risk Score</p>
+            <strong>{source.riskScore ?? "-"}</strong>
+          </div>
+          <div className="ui-card ui-card--padded">
+            <p className="metric-label">Confidence</p>
+            <strong>{Math.round(Number(source.lot?.confidenceScore ?? 0) * 100)}%</strong>
+          </div>
+          <div className="ui-card ui-card--padded">
+            <p className="metric-label">Active Price</p>
+            <strong>{currency(source.activePrice ?? source.recommendedPrice ?? 0)}</strong>
+          </div>
+        </div>
+        <details className="json-panel" open>
+          <summary>Recommendation Summary</summary>
+          <pre>{source.reasonSummary}</pre>
+        </details>
+        <details className="json-panel">
+          <summary>Recommendation JSON</summary>
+          <pre>{JSON.stringify(source, null, 2)}</pre>
+        </details>
+      </div>
+    );
+  }, [selectedProposal]);
 
   async function setMode(mode) {
     try {
@@ -374,7 +472,7 @@ export default function RecommendationsPage() {
         </div>
         <div className={styles.kpiCard}>
           <p className={styles.kpiLabel}>Blocked</p>
-          <p className={styles.kpiValue}>{detail?.proposals?.filter((item) => item.guardrail?.outcome === "blocked").length ?? 0}</p>
+          <p className={styles.kpiValue}>{effectiveProposalRows.filter((item) => item.guardrail?.outcome === "blocked").length}</p>
           <p className={styles.kpiMeta}>
             Last run {detail?.latestModelRun?.createdAt ? formatAuditTime(detail.latestModelRun.createdAt) : "-"}
           </p>
@@ -592,14 +690,16 @@ export default function RecommendationsPage() {
       <Card>
         <Card.Header title="Proposal Queue" subtitle="Click any row to inspect the full model artifact." />
         <Card.Body>
-          <ProposalTable rows={detail?.proposals ?? []} onSelect={setSelectedProposal} />
+          <ProposalTable rows={effectiveProposalRows} onSelect={setSelectedProposal} />
         </Card.Body>
       </Card>
 
       <ModelRunDrawer
         modelRunId={selectedProposal?.modelRun?.id ?? selectedProposal?.modelRunId ?? null}
+        fallbackContent={drawerFallbackContent}
         open={Boolean(selectedProposal)}
         onClose={() => setSelectedProposal(null)}
+        title={selectedProposal?.modelRunId || selectedProposal?.modelRun?.id ? "Model Run Detail" : "Recommendation Detail"}
       />
       <PipelineProgress
         open={Boolean(runningStoreId)}

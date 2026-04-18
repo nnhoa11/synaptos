@@ -5,7 +5,13 @@ import Modal from "@/components/ui/Modal";
 import Spinner from "@/components/ui/Spinner";
 import { fetchJson } from "@/lib/fetch-json";
 
-export default function ModelRunDrawer({ modelRunId, onClose, open }) {
+export default function ModelRunDrawer({
+  modelRunId,
+  onClose,
+  open,
+  fallbackContent = null,
+  title = "Model Run Detail",
+}) {
   const [state, setState] = useState({
     loading: false,
     error: "",
@@ -55,7 +61,7 @@ export default function ModelRunDrawer({ modelRunId, onClose, open }) {
   }, [modelRunId, open]);
 
   return (
-    <Modal onClose={onClose} open={open} title="Model Run Detail" width="960px">
+    <Modal onClose={onClose} open={open} title={title} width="960px">
       {state.loading ? (
         <div className="empty-state">
           <Spinner />
@@ -109,6 +115,8 @@ export default function ModelRunDrawer({ modelRunId, onClose, open }) {
             <pre>{JSON.stringify(state.payload.outputArtifact?.parsedOutputJson ?? state.payload.outputArtifact?.parsedOutput ?? {}, null, 2)}</pre>
           </details>
         </div>
+      ) : fallbackContent ? (
+        fallbackContent
       ) : null}
     </Modal>
   );

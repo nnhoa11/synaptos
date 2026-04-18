@@ -104,6 +104,15 @@ app
     startCampaignScheduler();
     startRealtimeOutboxBridge();
 
+    httpServer.on("error", (error) => {
+      if (error?.code === "EADDRINUSE") {
+        console.error(`[server] Port ${port} is already in use. Stop the previous SynaptOS node process and retry.`);
+        process.exit(1);
+      }
+      console.error("[server] HTTP server failure", error);
+      process.exit(1);
+    });
+
     httpServer.listen(port, () => {
       logStartup(`Ready on http://localhost:${port}`);
     });
