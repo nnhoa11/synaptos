@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { flushSync } from "react-dom";
 import ControlTowerOverview from "@/components/admin/ControlTowerOverview";
 import PipelineProgress from "@/components/admin/PipelineProgress";
 import StoreTabs from "@/components/admin/StoreTabs";
@@ -11,6 +12,12 @@ import Spinner from "@/components/ui/Spinner";
 import Table from "@/components/ui/Table";
 import { fetchJson } from "@/lib/fetch-json";
 import { formatAuditTime } from "@/lib/prototype-core";
+
+function waitForPipelineDrawer() {
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(resolve));
+  });
+}
 
 export default function DashboardPage() {
   const bootstrap = useAdminBootstrap();
@@ -50,7 +57,10 @@ export default function DashboardPage() {
     }
 
     setPageError("");
-    setRunningStoreId(storeId);
+    flushSync(() => {
+      setRunningStoreId(storeId);
+    });
+    await waitForPipelineDrawer();
 
     try {
       await fetchJson("/api/aggregation/run", {
@@ -65,6 +75,10 @@ export default function DashboardPage() {
       setRefreshToken((current) => current + 1);
     } catch (error) {
       setPageError(error.message);
+    } finally {
+      window.setTimeout(() => {
+        setRunningStoreId((current) => (current === storeId ? null : current));
+      }, 2000);
     }
   }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { flushSync } from "react-dom";
 import Badge from "@/components/ui/Badge";
 import ModelRunDrawer from "@/components/admin/ModelRunDrawer";
 import PipelineProgress from "@/components/admin/PipelineProgress";
@@ -13,6 +14,12 @@ import Spinner from "@/components/ui/Spinner";
 import { fetchJson } from "@/lib/fetch-json";
 import { currency, formatAuditTime } from "@/lib/prototype-core";
 import styles from "@/components/admin/OpsWorkbench.module.css";
+
+function waitForPipelineDrawer() {
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(resolve));
+  });
+}
 
 const MODES = [
   { id: "legacy", label: "Legacy", payload: { controlTowerEnabled: false, llmMode: "disabled" } },
@@ -366,21 +373,30 @@ export default function RecommendationsPage() {
   }
 
   async function runEngine() {
+    const storeId = bootstrap.selectedStoreId;
+
     try {
       setError("");
-      setRunningStoreId(bootstrap.selectedStoreId);
+      flushSync(() => {
+        setRunningStoreId(storeId);
+      });
+      await waitForPipelineDrawer();
       await fetchJson("/api/aggregation/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           mode: "live",
           snapshot: bootstrap.defaultSnapshot,
-          storeId: bootstrap.selectedStoreId,
+          storeId,
         }),
       });
       setRefreshToken((current) => current + 1);
     } catch (nextError) {
       setError(nextError.message);
+    } finally {
+      window.setTimeout(() => {
+        setRunningStoreId((current) => (current === storeId ? null : current));
+      }, 2000);
     }
   }
 
