@@ -25,6 +25,8 @@ function buildEvents(detail) {
   const logisticsByTaskId = new Map(
     detail.logisticsTasks.map((task) => [task.executionTaskId, task])
   );
+  const storeName = detail.store?.name ?? detail.storeId;
+  const district = detail.store?.district ?? detail.storeId;
 
   return detail.proposals
     .map((proposal) => {
@@ -52,6 +54,24 @@ function buildEvents(detail) {
           proposal.executionTask?.createdAt ??
           logisticsTask.createdAt,
         routing_destination: logisticsTask.destination,
+        route_label: logisticsTask.destinationLabel ?? "tax write-off hold",
+        route_priority: logisticsTask.urgency ?? "high",
+        store_name: storeName,
+        district,
+        coordinator_name: logisticsTask.coordinatorName ?? `${district} Logistics`,
+        coordinator_email: logisticsTask.coordinatorEmail ?? `${detail.storeId}.logistics@synaptos.local`,
+        pickup_window: logisticsTask.pickupWindow ?? null,
+        handoff_message:
+          logisticsTask.handoffMessage ??
+          `${storeName} should isolate ${quantity} units of ${proposal.skuName} for finance-approved EOL routing.`,
+        call_script:
+          logisticsTask.callScript ??
+          `Call logistics and confirm ${quantity} units of ${proposal.skuName} are ready for write-off pickup.`,
+        checklist: logisticsTask.checklist ?? [
+          "Pull units from the sale floor.",
+          "Verify counts against the SynaptOS ledger.",
+          "Attach tax write-off reference for finance.",
+        ],
       };
     })
     .filter(Boolean);

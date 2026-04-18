@@ -4,19 +4,16 @@
   gap: 16px;
 }
 
+/* Clean white card — no gradients */
 .bentoCard {
   overflow: hidden;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%),
-    linear-gradient(135deg, rgba(59, 130, 246, 0.04), rgba(15, 23, 42, 0.02));
-  border-color: rgba(226, 232, 240, 0.94);
-  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+  background: var(--surface);
+  border: 2px solid var(--border);
 }
 
 .heroCard {
-  background:
-    radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), transparent 30%),
-    linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+  background: var(--surface);
+  border-top: 3px solid var(--blue);
 }
 
 .span3 {
@@ -51,11 +48,9 @@
 }
 
 .metricCard {
-  min-height: 148px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.98)),
-    linear-gradient(135deg, rgba(15, 23, 42, 0.015), rgba(59, 130, 246, 0.03));
-  border: 1px solid rgba(226, 232, 240, 0.96);
+  min-height: 130px;
+  background: var(--surface);
+  border: 2px solid var(--border);
 }
 
 .metricBody {
@@ -64,78 +59,83 @@
 }
 
 .metricLabel {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--muted);
 }
 
 .metricValue {
-  font-size: clamp(24px, 2vw, 34px);
-  font-weight: 800;
-  letter-spacing: -0.04em;
+  font-size: clamp(22px, 2vw, 30px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
   color: var(--navy);
 }
 
 .metricDetail {
-  min-height: 36px;
+  min-height: 32px;
   color: var(--muted);
-  font-size: 13px;
+  font-size: 12px;
 }
 
+/* Sparkline bars — thin solid lines */
 .metricSpark {
   display: flex;
   align-items: flex-end;
-  gap: 6px;
-  min-height: 34px;
+  gap: 3px;
+  min-height: 28px;
 }
 
 .metricBar {
   flex: 1;
-  min-width: 6px;
-  border-radius: 999px;
-  background: rgba(59, 130, 246, 0.22);
+  min-width: 4px;
+  border-radius: 1px;
+  background: rgba(209, 217, 230, 0.5);
 }
 
 .metricBarblue {
-  background: linear-gradient(180deg, rgba(59, 130, 246, 0.9), rgba(59, 130, 246, 0.24));
+  background: var(--blue);
+  opacity: 0.75;
 }
 
 .metricBargreen {
-  background: linear-gradient(180deg, rgba(22, 163, 74, 0.9), rgba(22, 163, 74, 0.22));
+  background: var(--green);
+  opacity: 0.75;
 }
 
 .metricBarred {
-  background: linear-gradient(180deg, rgba(239, 68, 68, 0.9), rgba(239, 68, 68, 0.22));
+  background: var(--red);
+  opacity: 0.75;
 }
 
 .metricBaramber {
-  background: linear-gradient(180deg, rgba(245, 158, 11, 0.94), rgba(245, 158, 11, 0.24));
+  background: var(--amber);
+  opacity: 0.75;
 }
 
 .heroBody {
   display: grid;
-  gap: 18px;
+  gap: 16px;
 }
 
 .heroMetaGrid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
+  gap: 10px;
 }
 
 .heroStat {
   display: grid;
-  gap: 4px;
-  padding: 12px;
-  border: 1px solid rgba(226, 232, 240, 0.92);
+  gap: 3px;
+  padding: 10px 12px;
+  border: 2px solid var(--border);
   border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.72);
+  background: var(--surface-muted);
 }
 
 .heroStatLabel {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -143,8 +143,9 @@
 }
 
 .heroStat strong {
-  font-size: 15px;
+  font-size: 14px;
   color: var(--navy);
+  font-weight: 600;
 }
 
 .legendRow {
@@ -157,15 +158,15 @@
 .legendItem {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-size: 12px;
+  gap: 6px;
+  font-size: 11.5px;
   color: var(--muted);
 }
 
 .legendLine {
   display: inline-block;
-  width: 28px;
-  border-top: 3px solid var(--blue);
+  width: 22px;
+  border-top: 1.5px solid var(--blue);
 }
 
 .legendLineActual {
@@ -179,16 +180,15 @@
 
 .heroContext {
   margin-left: auto;
-  font-size: 12px;
+  font-size: 11.5px;
   color: var(--muted);
 }
 
+/* Chart container — clean, no gradient fill */
 .chartShell {
-  border: 1px solid rgba(226, 232, 240, 0.94);
+  border: 2px solid var(--border);
   border-radius: var(--radius);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(241, 245, 249, 0.82)),
-    linear-gradient(135deg, rgba(59, 130, 246, 0.03), transparent 42%);
+  background: var(--surface);
   overflow: hidden;
 }
 
@@ -199,25 +199,27 @@
 }
 
 .gridLine {
-  stroke: rgba(148, 163, 184, 0.26);
+  stroke: rgba(209, 217, 230, 0.5);
   stroke-width: 1;
 }
 
 .yAxisLabel,
 .xAxisLabel {
   fill: var(--muted);
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 10.5px;
+  font-weight: 500;
+  font-family: "SF Pro Display", -apple-system, sans-serif;
 }
 
+/* Chart paths — thin clean lines, no area fills */
 .actualArea {
-  fill: url(#traffic-area);
+  fill: none;
 }
 
 .actualPath {
   fill: none;
   stroke: var(--blue);
-  stroke-width: 3;
+  stroke-width: 1.5;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -225,8 +227,8 @@
 .forecastPath {
   fill: none;
   stroke: var(--amber);
-  stroke-width: 3;
-  stroke-dasharray: 10 8;
+  stroke-width: 1.5;
+  stroke-dasharray: 6 5;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -234,7 +236,7 @@
 .actualDot {
   fill: var(--blue);
   stroke: #ffffff;
-  stroke-width: 3;
+  stroke-width: 2;
 }
 
 .forecastDot {
@@ -244,7 +246,7 @@
 }
 
 .sectionLabel {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -255,24 +257,25 @@
 .heatmapBody,
 .signalBody,
 .demandBody,
+.mixBody,
 .freshnessBody,
 .historyBody {
-  display: grid;
-  gap: 14px;
-}
-
-.districtGrid {
   display: grid;
   gap: 12px;
 }
 
-.districtCard {
+.districtGrid {
   display: grid;
   gap: 10px;
-  padding: 14px;
-  border: 1px solid rgba(226, 232, 240, 0.9);
+}
+
+.districtCard {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 2px solid var(--border);
   border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.76);
+  background: var(--surface);
 }
 
 .districtHeader {
@@ -283,17 +286,18 @@
 }
 
 .districtName {
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--navy);
 }
 
 .districtMeta {
-  margin-top: 4px;
-  font-size: 12px;
+  margin-top: 3px;
+  font-size: 11.5px;
   color: var(--muted);
 }
 
+/* Sparkline — thin 1px track, 1.5px line */
 .sparkline {
   width: 100%;
   height: auto;
@@ -301,14 +305,14 @@
 
 .sparklineTrack {
   fill: none;
-  stroke: rgba(203, 213, 225, 0.94);
+  stroke: var(--border);
   stroke-width: 1;
 }
 
 .sparklinePath {
   fill: none;
   stroke: var(--navy);
-  stroke-width: 3;
+  stroke-width: 1.5;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -318,19 +322,20 @@
   justify-content: space-between;
   gap: 12px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 11.5px;
 }
 
+/* Heatmap */
 .heatmapTable {
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
 .heatmapHeaderRow,
 .heatmapRow {
   display: grid;
   grid-template-columns: 132px repeat(16, minmax(0, 1fr));
-  gap: 6px;
+  gap: 4px;
   align-items: stretch;
 }
 
@@ -339,8 +344,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 28px;
-  font-size: 11px;
+  min-height: 24px;
+  font-size: 10px;
   font-weight: 700;
   color: var(--muted);
 }
@@ -352,50 +357,53 @@
 .heatmapLabel {
   display: grid;
   align-content: center;
-  gap: 3px;
-  font-size: 12px;
+  gap: 2px;
+  font-size: 11.5px;
   color: var(--muted);
 }
 
 .heatmapLabel strong {
   color: var(--navy);
+  font-weight: 600;
 }
 
 .heatmapCell {
   display: grid;
   place-items: center;
-  min-height: 42px;
-  border: 1px solid rgba(255, 255, 255, 0.74);
-  border-radius: 3px;
-  font-size: 10px;
+  min-height: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 2px;
+  font-size: 9.5px;
   font-weight: 700;
   color: #ffffff;
-  text-shadow: 0 1px 2px rgba(15, 23, 42, 0.28);
 }
 
 .heatmapCellPeak {
-  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.6);
+  box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.7);
 }
 
 .demandList,
+.mixList,
 .freshnessList,
 .historyList {
   display: grid;
-  gap: 12px;
+  gap: 10px;
 }
 
 .demandRow,
+.mixRow,
 .freshnessRow,
 .historyItem {
   display: grid;
-  gap: 10px;
-  padding: 14px;
-  border: 1px solid rgba(226, 232, 240, 0.92);
+  gap: 8px;
+  padding: 12px;
+  border: 2px solid var(--border);
   border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.8);
+  background: var(--surface);
 }
 
 .demandHead,
+.mixHead,
 .freshnessHead,
 .historyTop {
   display: flex;
@@ -408,70 +416,84 @@
 .freshnessMeta,
 .historyMeta,
 .historyCopy {
-  font-size: 12px;
+  font-size: 11.5px;
   color: var(--muted);
 }
 
+/* Thin progress tracks — 2px */
 .demandBarTrack,
+.mixBarTrack,
 .freshnessTrack {
   position: relative;
-  height: 10px;
+  height: 2px;
   overflow: hidden;
   border-radius: 999px;
-  background: rgba(226, 232, 240, 0.9);
+  background: var(--border);
 }
 
 .demandBarFill,
+.mixBarFill,
 .freshnessFill {
   position: absolute;
   inset: 0 auto 0 0;
   border-radius: 999px;
 }
 
+.mixBarFill {
+  background: var(--navy);
+}
+
+.mixMeta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
 .demandToneblue {
-  background: linear-gradient(90deg, rgba(59, 130, 246, 0.92), rgba(14, 165, 233, 0.76));
+  background: var(--blue);
 }
 
 .demandToneamber {
-  background: linear-gradient(90deg, rgba(245, 158, 11, 0.94), rgba(251, 191, 36, 0.78));
+  background: var(--amber);
 }
 
 .demandTonered {
-  background: linear-gradient(90deg, rgba(239, 68, 68, 0.94), rgba(248, 113, 113, 0.76));
+  background: var(--red);
 }
 
 .demandTonegray {
-  background: linear-gradient(90deg, rgba(100, 116, 139, 0.94), rgba(148, 163, 184, 0.76));
+  background: var(--muted);
 }
 
 .demandFoot {
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  font-size: 12px;
+  font-size: 11.5px;
   color: var(--muted);
 }
 
+/* Signal cards */
 .signalColumns {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 10px;
 }
 
 .signalColumn {
   display: grid;
-  gap: 12px;
+  gap: 10px;
 }
 
 .signalItem {
   display: grid;
-  gap: 8px;
-  padding: 14px;
-  border: 1px solid rgba(226, 232, 240, 0.92);
+  gap: 6px;
+  padding: 12px;
+  border: 2px solid var(--border);
   border-radius: var(--radius);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(248, 250, 252, 0.82)),
-    linear-gradient(135deg, rgba(59, 130, 246, 0.03), transparent);
+  background: var(--surface);
 }
 
 .signalItemTop {
@@ -481,9 +503,10 @@
 }
 
 .signalDot {
-  width: 9px;
-  height: 9px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
+  flex-shrink: 0;
 }
 
 .signalDotblue {
@@ -507,7 +530,7 @@
 }
 
 .signalKicker {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -516,39 +539,41 @@
 
 .signalItem h4 {
   margin: 0;
-  font-size: 15px;
+  font-size: 13px;
   line-height: 1.3;
   color: var(--navy);
+  font-weight: 600;
 }
 
 .signalItem p {
   margin: 0;
   color: var(--text);
-  font-size: 13px;
+  font-size: 12.5px;
 }
 
 .signalMeta {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 11.5px;
 }
 
 .badgeStack {
   display: flex;
-  gap: 6px;
+  gap: 5px;
   flex-wrap: wrap;
   justify-content: flex-end;
 }
 
 .freshnessFill {
-  background: linear-gradient(90deg, rgba(22, 163, 74, 0.88), rgba(59, 130, 246, 0.84));
+  background: var(--green);
 }
 
 .emptyCopy {
   padding: 16px;
-  border: 1px dashed rgba(203, 213, 225, 0.92);
+  border: 2px dashed var(--border);
   border-radius: var(--radius);
   color: var(--muted);
-  background: rgba(248, 250, 252, 0.94);
+  background: var(--surface-muted);
+  font-size: 12.5px;
 }
 
 @media (max-width: 1360px) {

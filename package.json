@@ -6,7 +6,7 @@
   "main": "electron/main.js",
   "private": true,
   "scripts": {
-    "dev": "node server.js",
+    "dev": "npm run build && set NODE_ENV=production&& node server.js",
     "build": "next build",
     "start": "set NODE_ENV=production&& node server.js",
     "db:up": "docker compose -f docker-compose.postgres.yml up -d",

@@ -1,0 +1,432 @@
+.page {
+  display: grid;
+  gap: 18px;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.toolbarGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.hero {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.95fr);
+}
+
+/* Light corporate hero — no dark gradient */
+.heroPrimary {
+  position: relative;
+  overflow: hidden;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-top: 3px solid var(--blue);
+}
+
+.heroBody {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 16px;
+}
+
+.heroTop {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.heroTitle {
+  margin: 0;
+  font-size: clamp(20px, 2.5vw, 28px);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  color: var(--navy);
+}
+
+.heroCopy {
+  margin: 0;
+  max-width: 64ch;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.glassButton {
+  border-color: var(--border);
+  background: var(--surface);
+  color: var(--muted);
+}
+
+/* Insight KPI tiles */
+.insightRow {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.insightTile {
+  padding: 12px 14px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-muted);
+}
+
+.insightLabel {
+  margin: 0 0 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.insightValue {
+  display: block;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--navy);
+}
+
+.insightMeta {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+.briefingPanel {
+  display: grid;
+  gap: 12px;
+}
+
+.briefingGrid {
+  display: grid;
+  gap: 10px;
+}
+
+.briefingTile {
+  padding: 12px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.briefingTile strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 13px;
+  color: var(--navy);
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.confidenceBlock {
+  padding: 12px;
+  border: 2px solid #bfdbfe;
+  border-radius: var(--radius);
+  background: #eff6ff;
+}
+
+.bento {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
+.recommendationsCard {
+  grid-column: span 8;
+}
+
+.ledgerCard {
+  grid-column: span 4;
+}
+
+.plannerCard {
+  grid-column: span 5;
+}
+
+.performanceCard {
+  grid-column: span 4;
+}
+
+.strategyCard {
+  grid-column: span 3;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.recommendationList,
+.campaignList,
+.performanceList,
+.scenarioList {
+  display: grid;
+  gap: 10px;
+}
+
+.recommendationCard {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.recommendationCard.isSelected {
+  border-color: #bfdbfe;
+  background: #f8fbff;
+}
+
+.recommendationHead,
+.recommendationMeta,
+.campaignMeta,
+.scenarioHead {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.recommendationLine {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+.recommendationInputs {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.recommendationActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.miniField {
+  display: grid;
+  gap: 5px;
+}
+
+.miniField label {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.miniField input,
+.miniField select {
+  width: 100%;
+  min-height: 34px;
+  padding: 7px 10px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: #ffffff;
+  color: var(--text);
+}
+
+.miniField input:focus,
+.miniField select:focus {
+  outline: none;
+  border-color: var(--blue);
+}
+
+/* Campaign planner timeline — thin track */
+.timeline {
+  display: grid;
+  gap: 10px;
+}
+
+.timelineLane {
+  display: grid;
+  gap: 6px;
+}
+
+.timelineTrack {
+  position: relative;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.timelineSegment {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 999px;
+  background: var(--blue);
+}
+
+.timelineHours {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 6px;
+  color: var(--muted);
+  font-size: 10.5px;
+}
+
+.timelineLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+.campaignCard {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.campaignCard.isActive {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+}
+
+.campaignCard.isScheduled {
+  border-color: #bfdbfe;
+  background: #f8fbff;
+}
+
+.campaignCard.isExpired {
+  opacity: 0.65;
+}
+
+/* Thin performance bars */
+.performanceRow {
+  display: grid;
+  gap: 6px;
+}
+
+.performanceBar {
+  position: relative;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.performanceBar span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 999px;
+  background: var(--blue);
+}
+
+.scenarioCard {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.scenarioPillRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.emptyBox {
+  padding: 18px;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+@media (max-width: 1200px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .recommendationsCard,
+  .ledgerCard,
+  .plannerCard,
+  .performanceCard,
+  .strategyCard {
+    grid-column: span 6;
+  }
+}
+
+@media (max-width: 900px) {
+  .insightRow,
+  .recommendationInputs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .bento {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+
+  .recommendationsCard,
+  .ledgerCard,
+  .plannerCard,
+  .performanceCard,
+  .strategyCard {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .heroTop {
+    grid-template-columns: 1fr;
+  }
+
+  .heroActions {
+    justify-content: flex-start;
+  }
+
+  .insightRow,
+  .recommendationInputs {
+    grid-template-columns: 1fr;
+  }
+}

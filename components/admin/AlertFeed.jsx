@@ -42,7 +42,7 @@ function normalizeEvent(event) {
   };
 }
 
-export default function AlertFeed({ storeId = null }) {
+export default function AlertFeed({ embedded = false, storeId = null }) {
   const [events, setEvents] = useState([]);
 
   useEffect(() => {
@@ -69,33 +69,37 @@ export default function AlertFeed({ storeId = null }) {
     };
   }, [storeId]);
 
+  const content = events.length ? (
+    <div className="stack" style={{ gap: 10 }}>
+      {events.map((event) => (
+        <article className="alert-row" key={event.id}>
+          <div className="stack" style={{ gap: 4 }}>
+            <strong>{event.message}</strong>
+            <span className="metric-footnote">
+              {formatAuditTime(event.at)}
+              {event.storeId ? ` | ${event.storeId}` : ""}
+            </span>
+          </div>
+          <Badge tone={toneFromStatus(event.type.includes("failed") ? "failed" : "completed")}>
+            {event.type.replaceAll(".", " ")}
+          </Badge>
+        </article>
+      ))}
+    </div>
+  ) : (
+    <div className="empty-state">
+      <p className="empty-state__copy">Live alerts will appear here once the engine or operators emit events.</p>
+    </div>
+  );
+
+  if (embedded) {
+    return content;
+  }
+
   return (
     <Card>
       <Card.Header title="Alert Feed" subtitle="Live operations, approvals, and pipeline notifications." />
-      <Card.Body>
-        {events.length ? (
-          <div className="stack" style={{ gap: 10 }}>
-            {events.map((event) => (
-              <article className="alert-row" key={event.id}>
-                <div className="stack" style={{ gap: 4 }}>
-                  <strong>{event.message}</strong>
-                  <span className="metric-footnote">
-                    {formatAuditTime(event.at)}
-                    {event.storeId ? ` | ${event.storeId}` : ""}
-                  </span>
-                </div>
-                <Badge tone={toneFromStatus(event.type.includes("failed") ? "failed" : "completed")}>
-                  {event.type.replaceAll(".", " ")}
-                </Badge>
-              </article>
-            ))}
-          </div>
-        ) : (
-          <div className="empty-state">
-            <p className="empty-state__copy">Live alerts will appear here once the engine or operators emit events.</p>
-          </div>
-        )}
-      </Card.Body>
+      <Card.Body>{content}</Card.Body>
     </Card>
   );
 }

@@ -47,6 +47,16 @@ export default function POSApp({ storeId }) {
                       currentPrice: payload.current_price,
                       originalPrice: payload.original_price,
                       discountPct: payload.discount_pct,
+                      quantity: payload.quantity ?? product.quantity,
+                      category: payload.category ?? product.category,
+                      itemTraffic: payload.item_traffic ?? product.itemTraffic,
+                      recentVelocity: payload.recent_velocity ?? product.recentVelocity,
+                      sellThroughProbability:
+                        payload.sell_through_probability ?? product.sellThroughProbability,
+                      stockoutRisk: payload.stockout_risk ?? product.stockoutRisk,
+                      spoilageRisk: payload.spoilage_risk ?? product.spoilageRisk,
+                      statusTone: payload.status_tone ?? product.statusTone,
+                      snapshotKey: payload.snapshot_key ?? product.snapshotKey,
                     }
                   : product
               ),

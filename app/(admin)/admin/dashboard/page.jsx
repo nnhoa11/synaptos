@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import AlertFeed from "@/components/admin/AlertFeed";
-import KpiCard from "@/components/admin/KpiCard";
+import ControlTowerOverview from "@/components/admin/ControlTowerOverview";
 import PipelineProgress from "@/components/admin/PipelineProgress";
 import StoreTabs from "@/components/admin/StoreTabs";
 import { useAdminBootstrap, useControlTowerDetail, useControlTowerStores } from "@/components/admin/use-admin-data";
@@ -11,8 +10,7 @@ import Card from "@/components/ui/Card";
 import Spinner from "@/components/ui/Spinner";
 import Table from "@/components/ui/Table";
 import { fetchJson } from "@/lib/fetch-json";
-import { formatAuditTime, shortCurrency } from "@/lib/prototype-core";
-import { formatPercent } from "@/lib/ui-format";
+import { formatAuditTime } from "@/lib/prototype-core";
 
 export default function DashboardPage() {
   const bootstrap = useAdminBootstrap();
@@ -88,7 +86,8 @@ export default function DashboardPage() {
         <p className="page-eyebrow">Admin Dashboard</p>
         <h1 className="page-title">Control Tower Overview</h1>
         <p className="page-subtitle">
-          Monitor chain KPIs, launch the multi-agent engine, and watch execution propagate into downstream interfaces.
+          Read the live chain pulse, inspect district demand shape, and trigger the engine from the highest-pressure
+          operating window.
         </p>
       </header>
 
@@ -106,111 +105,80 @@ export default function DashboardPage() {
         </Card>
       ) : null}
 
-      <div className="kpi-grid">
-        <KpiCard
-          footnote="Current operational snapshot rescued GMV."
-          label="Rescued GMV"
-          tone="green"
-          value={`${shortCurrency(metrics?.rescuedGmv ?? 0)}₫`}
-        />
-        <KpiCard
-          footnote={`${detail?.storeMetrics?.atRiskLots ?? 0} at-risk lots in ${selectedStore?.name ?? "store"}.`}
-          label="Waste Rate"
-          tone="amber"
-          value={formatPercent(detail?.storeMetrics?.wasteRate ?? 0, 1)}
-        />
-        <KpiCard
-          footnote="Markdowned lots vs active inventory."
-          label="Sell-through"
-          tone="blue"
-          value={formatPercent(metrics?.wasteAvoidedPct ? metrics.wasteAvoidedPct / 100 : 0, 1)}
-        />
-        <KpiCard
-          footnote="Persisted model runs in the selected store snapshot."
-          label="AI Loops"
-          tone="blue"
-          value={`${detail?.modelRunHistory?.length ?? 0}`}
-        />
-      </div>
-
-      <div className="grid-2">
-        <Card>
-          <Card.Header
-            actions={
-              <Button onClick={() => runEngine(bootstrap.selectedStoreId)}>Run Engine</Button>
-            }
-            title="Store Status"
-            subtitle={`Operational snapshot ${bootstrap.defaultSnapshot ?? "not available"}`}
-          />
-          <Card.Body>
-            <Table
-              columns={[
-                { key: "name", label: "Store" },
-                {
-                  key: "archetype",
-                  label: "Archetype",
-                  render: (row) => row.displayType ?? row.archetype,
-                },
-                {
-                  key: "lastAggregationAt",
-                  label: "Last Run",
-                  render: (row) => (row.lastAggregationAt ? formatAuditTime(row.lastAggregationAt) : "Never"),
-                },
-                {
-                  key: "wasteRate",
-                  label: "Waste Rate",
-                  render: (row) => formatPercent(row.wasteRate ?? 0, 1),
-                },
-                {
-                  key: "onSaleLots",
-                  label: "Active Labels",
-                  render: (row) => `${row.onSaleLots ?? 0}`,
-                },
-                {
-                  key: "latestModelRun",
-                  label: "WS Status",
-                  render: (row) => row.latestModelRun?.status ?? "idle",
-                },
-                {
-                  key: "actions",
-                  label: "Actions",
-                  render: (row) => (
-                    <Button size="sm" onClick={() => runEngine(row.id)}>
-                      Run Engine
-                    </Button>
-                  ),
-                },
-              ]}
-              rowKey="id"
-              rows={overviewRows}
-            />
-          </Card.Body>
-        </Card>
-
-        <AlertFeed storeId={bootstrap.selectedStoreId} />
-      </div>
+      <ControlTowerOverview
+        detail={detail}
+        metrics={metrics}
+        onRunEngine={runEngine}
+        runningStoreId={runningStoreId}
+        selectedStore={selectedStore}
+        snapshotKey={bootstrap.defaultSnapshot}
+        stores={overviewRows}
+      />
 
       <Card>
-        <Card.Header title="Selected Store" subtitle="Latest aggregation and proposal posture for the chosen store." />
+        <Card.Header
+          actions={
+            <div className="row">
+              <Button size="sm" variant="secondary" onClick={() => setRefreshToken((current) => current + 1)}>
+                Refresh
+              </Button>
+              <Button size="sm" onClick={() => runEngine(bootstrap.selectedStoreId)}>
+                Run Selected Store
+              </Button>
+            </div>
+          }
+          title="Store Status Matrix"
+          subtitle={`Operational snapshot ${
+            bootstrap.defaultSnapshot ? formatAuditTime(bootstrap.defaultSnapshot) : "not available"
+          }`}
+        />
         <Card.Body>
-          <div className="grid-4">
-            <div className="ui-card ui-card--padded">
-              <p className="metric-label">Store</p>
-              <strong>{selectedStore?.name ?? "—"}</strong>
-            </div>
-            <div className="ui-card ui-card--padded">
-              <p className="metric-label">Proposals</p>
-              <strong>{detail?.proposals?.length ?? 0}</strong>
-            </div>
-            <div className="ui-card ui-card--padded">
-              <p className="metric-label">Pending Approvals</p>
-              <strong>{detail?.approvals?.filter((item) => item.status === "pending").length ?? 0}</strong>
-            </div>
-            <div className="ui-card ui-card--padded">
-              <p className="metric-label">Latest Provider</p>
-              <strong>{detail?.latestModelRun?.model ?? "—"}</strong>
-            </div>
-          </div>
+          <Table
+            columns={[
+              { key: "name", label: "Store" },
+              {
+                key: "archetype",
+                label: "Archetype",
+                render: (row) => row.displayType ?? row.archetype,
+              },
+              {
+                key: "activeLots",
+                label: "Live Lots",
+                render: (row) => `${row.activeLots ?? 0}`,
+              },
+              {
+                key: "totalQuantity",
+                label: "Units On Hand",
+                render: (row) => `${row.totalQuantity ?? 0}`,
+              },
+              {
+                key: "atRiskLots",
+                label: "At Risk",
+                render: (row) => `${row.atRiskLots ?? 0}`,
+              },
+              {
+                key: "onSaleLots",
+                label: "On Sale",
+                render: (row) => `${row.onSaleLots ?? 0}`,
+              },
+              {
+                key: "lastAggregationAt",
+                label: "Last Run",
+                render: (row) => (row.lastAggregationAt ? formatAuditTime(row.lastAggregationAt) : "Live mock"),
+              },
+              {
+                key: "actions",
+                label: "Actions",
+                render: (row) => (
+                  <Button size="sm" onClick={() => runEngine(row.id)}>
+                    Run Engine
+                  </Button>
+                ),
+              },
+            ]}
+            rowKey="id"
+            rows={overviewRows}
+          />
         </Card.Body>
       </Card>
 

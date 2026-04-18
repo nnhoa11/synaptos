@@ -1,0 +1,572 @@
+.overview {
+  display: grid;
+  gap: 16px;
+}
+
+.heroBand {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.9fr);
+}
+
+/* Hero panel: clean white corporate card, no dark gradient */
+.heroPanel {
+  position: relative;
+  overflow: hidden;
+  background: var(--surface);
+  border: 2px solid var(--border);
+}
+
+.heroBody {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 18px;
+}
+
+.heroTop {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: flex-start;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.heroTitle {
+  margin: 0;
+  font-size: clamp(20px, 2.5vw, 28px);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  color: var(--navy);
+}
+
+.heroCopy {
+  margin: 0;
+  max-width: 62ch;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.ghostButton {
+  border-color: var(--border);
+  background: var(--surface);
+  color: var(--muted);
+}
+
+/* Metadata chips */
+.chipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.heroChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 26px;
+  padding: 0 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 3px;
+  background: var(--surface-muted);
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+.heroChip strong {
+  color: var(--navy);
+  font-weight: 600;
+}
+
+/* KPI metric tiles */
+.heroMetrics {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.heroMetric {
+  padding: 12px 14px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-muted);
+}
+
+.heroMetricLabel {
+  margin: 0 0 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.heroMetricValue {
+  display: block;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--navy);
+}
+
+.heroMetricMeta {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+/* Chart panel */
+.heroChartPanel {
+  display: grid;
+  gap: 10px;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+.legendLine {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legendStroke,
+.legendStrokeDashed {
+  width: 22px;
+  height: 0;
+  border-top: 1.5px solid var(--blue);
+}
+
+.legendStrokeDashed {
+  border-top-style: dashed;
+  border-top-color: var(--muted);
+}
+
+.chartShell {
+  position: relative;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.chartSvg {
+  width: 100%;
+  height: 200px;
+  display: block;
+}
+
+.chartAxisLabel {
+  fill: var(--muted);
+  font-size: 10px;
+  font-family: "SF Pro Display", -apple-system, sans-serif;
+}
+
+.chartPointLabel {
+  fill: var(--navy);
+  font-size: 10px;
+  font-weight: 700;
+  font-family: "SF Pro Display", -apple-system, sans-serif;
+}
+
+.heroFooter {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 11.5px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+}
+
+/* Spotlight (Decision Posture) panel */
+.spotlightPanel {
+  display: grid;
+  gap: 14px;
+}
+
+.spotlightHeader {
+  display: grid;
+  gap: 5px;
+}
+
+.spotlightTitle {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--navy);
+}
+
+.spotlightCopy {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.spotlightStack {
+  display: grid;
+  gap: 8px;
+}
+
+.spotlightTile {
+  padding: 12px 14px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.spotlightTile strong {
+  display: block;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--navy);
+}
+
+.spotlightTile span {
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+/* Bento grid */
+.bento {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
+.chainCard {
+  grid-column: span 4;
+}
+
+.heatmapCard {
+  grid-column: span 4;
+}
+
+.signalsCard {
+  grid-column: span 4;
+}
+
+.demandCard {
+  grid-column: span 5;
+}
+
+.alertsCard {
+  grid-column: span 4;
+}
+
+.executionCard {
+  grid-column: span 3;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.sectionSubtitle {
+  margin: 3px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* Chain Leaderboard */
+.leaderboard {
+  display: grid;
+  gap: 8px;
+}
+
+.leaderRow {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.isActive {
+  border-color: #bfdbfe;
+  background: #f8fbff;
+}
+
+.leaderHead {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: baseline;
+}
+
+.leaderName {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--navy);
+}
+
+.leaderMeta {
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+/* Thin bar: 2px track, 2px fill */
+.leaderBar {
+  position: relative;
+  overflow: hidden;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--border);
+}
+
+.leaderBar span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 999px;
+  background: var(--blue);
+}
+
+.leaderFoot {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+/* Heatmap */
+.heatmap {
+  display: grid;
+  gap: 6px;
+}
+
+.heatmapHeader,
+.heatmapRow {
+  display: grid;
+  gap: 4px;
+  grid-template-columns: 88px repeat(16, minmax(0, 1fr));
+  align-items: center;
+}
+
+.heatmapLabel {
+  color: var(--muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.heatmapHour {
+  text-align: center;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.heatCell {
+  aspect-ratio: 1 / 1;
+  border-radius: 2px;
+  border: 1px solid rgba(209, 217, 230, 0.4);
+}
+
+.isPeak {
+  outline: 1.5px solid rgba(29, 78, 216, 0.4);
+  outline-offset: 1px;
+}
+
+/* Signal Wire */
+.signalsGrid {
+  display: grid;
+  gap: 10px;
+}
+
+.signalBlock {
+  display: grid;
+  gap: 8px;
+}
+
+.signalCard {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.signalKicker {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.signalMeta {
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+/* Demand Board */
+.demandList,
+.executionList {
+  display: grid;
+  gap: 10px;
+}
+
+.demandRow {
+  display: grid;
+  gap: 6px;
+}
+
+.demandHead,
+.executionRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+/* Thin demand bar */
+.demandBar {
+  position: relative;
+  overflow: hidden;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--border);
+}
+
+.demandBar span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 999px;
+  background: var(--blue);
+}
+
+.demandMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+/* Execution Pressure rows */
+.executionRow {
+  padding: 10px 12px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.executionRow strong {
+  display: block;
+  font-size: 13px;
+  color: var(--navy);
+}
+
+.mutedBlock {
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+.tableCard {
+  display: grid;
+  gap: 0;
+}
+
+.tableHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.tableNote {
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+.tableActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 1200px) {
+  .heroBand {
+    grid-template-columns: 1fr;
+  }
+
+  .chainCard,
+  .heatmapCard,
+  .signalsCard,
+  .demandCard,
+  .alertsCard,
+  .executionCard {
+    grid-column: span 6;
+  }
+}
+
+@media (max-width: 900px) {
+  .heroMetrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .bento {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+
+  .chainCard,
+  .heatmapCard,
+  .signalsCard,
+  .demandCard,
+  .alertsCard,
+  .executionCard {
+    grid-column: auto;
+  }
+
+  .heatmapHeader,
+  .heatmapRow {
+    grid-template-columns: 72px repeat(16, minmax(16px, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .heroTop {
+    grid-template-columns: 1fr;
+  }
+
+  .heroActions {
+    justify-content: flex-start;
+  }
+
+  .heroMetrics {
+    grid-template-columns: 1fr;
+  }
+
+  .chartSvg {
+    height: 160px;
+  }
+}

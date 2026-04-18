@@ -460,6 +460,44 @@ function DemandForecastCard({ analytics }) {
   );
 }
 
+function AssortmentMixCard({ analytics }) {
+  const rows = analytics?.assortmentMix ?? [];
+  const maxQuantity = Math.max(1, ...rows.map((row) => Number(row.quantity ?? 0)));
+
+  return (
+    <Card className={classNames(styles.bentoCard, styles.span3)}>
+      <Card.Header
+        title="Assortment Mix"
+        subtitle="Current live sample density by category, markdown exposure, and quantity share."
+      />
+      <Card.Body className={styles.mixBody}>
+        <div className={styles.mixList}>
+          {rows.map((row) => (
+            <div className={styles.mixRow} key={row.category}>
+              <div className={styles.mixHead}>
+                <strong>{row.category}</strong>
+                <Badge tone={row.markdownSharePct >= 0.35 ? "red" : row.sharePct >= 0.2 ? "blue" : "gray"}>
+                  {formatPercent(row.sharePct ?? 0, 0)}
+                </Badge>
+              </div>
+              <div className={styles.mixBarTrack}>
+                <div
+                  className={styles.mixBarFill}
+                  style={{ width: `${Math.max(10, Math.round((Number(row.quantity ?? 0) / maxQuantity) * 100))}%` }}
+                />
+              </div>
+              <div className={styles.mixMeta}>
+                <span>{formatNumber(row.quantity)} units</span>
+                <span>{formatPercent(row.markdownSharePct ?? 0, 0)} markdown</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card.Body>
+    </Card>
+  );
+}
+
 function SignalWireCard({ analytics }) {
   const recent = analytics?.signalWire?.recent ?? [];
   const upcoming = analytics?.signalWire?.upcoming ?? [];
@@ -530,7 +568,15 @@ function FreshnessCard({ analytics }) {
                   </div>
                   <div className={styles.badgeStack}>
                     <Badge
-                      tone={row.provenance === "live" ? "green" : row.provenance === "cached" ? "amber" : "gray"}
+                      tone={
+                        row.provenance === "live"
+                          ? "green"
+                          : row.provenance === "cached"
+                            ? "amber"
+                            : row.provenance === "live_mock"
+                              ? "blue"
+                              : "gray"
+                      }
                     >
                       {row.provenance}
                     </Badge>
@@ -618,6 +664,7 @@ export default function ChainAnalyticsDashboard({ detail }) {
       <DistrictRhythmCard analytics={analytics} />
       <HeatmapCard analytics={analytics} />
       <DemandForecastCard analytics={analytics} />
+      <AssortmentMixCard analytics={analytics} />
       <FreshnessCard analytics={analytics} />
       <HistoryCard detail={detail} />
       <InventoryCard detail={detail} />

@@ -8,20 +8,22 @@ const next = require("next");
 const { Server } = require("socket.io");
 const { setIO } = require("./lib/server/server-events.js");
 const { startCampaignScheduler } = require("./lib/server/campaign-scheduler.js");
+const { startRealtimeOutboxBridge } = require("./lib/server/realtime-outbox.cjs");
 
 loadEnvConfig(process.cwd());
 
+function logStartup(message) {
+  console.log(`[server] ${new Date().toISOString()} ${message}`);
+}
+
 const port = Number(process.env.PORT ?? 3000);
 const forceNextDev = process.env.SYNAPTOS_USE_NEXT_DEV === "1";
-const shouldBuildBeforeStart = process.env.NODE_ENV !== "production" && !forceNextDev;
+const dev = process.env.NODE_ENV !== "production" || forceNextDev;
+const shouldBuildBeforeStart = !dev;
 const buildIdPath = path.join(process.cwd(), ".next", "BUILD_ID");
 
 function ensureBuild() {
-  if (!shouldBuildBeforeStart && existsSync(buildIdPath)) {
-    return;
-  }
-
-  if (existsSync(buildIdPath) && !shouldBuildBeforeStart) {
+  if (existsSync(buildIdPath)) {
     return;
   }
 
@@ -41,18 +43,26 @@ function ensureBuild() {
   }
 }
 
-const dev = forceNextDev;
-
 if (!dev) {
   ensureBuild();
 }
 
+logStartup(`boot dev=${dev} forceNextDev=${forceNextDev} port=${port}`);
+
 const app = next({ dev, hostname: "localhost", port });
 const handle = app.getRequestHandler();
+
+logStartup("starting app.prepare()");
+
+const startupWatchdog = setInterval(() => {
+  logStartup("still waiting for app.prepare()");
+}, 15_000);
 
 app
   .prepare()
   .then(() => {
+    clearInterval(startupWatchdog);
+    logStartup("app.prepare() resolved");
     const httpServer = createServer(async (req, res) => {
       try {
         const parsedUrl = parse(req.url, true);
@@ -82,12 +92,14 @@ app
 
     setIO(io);
     startCampaignScheduler();
+    startRealtimeOutboxBridge();
 
     httpServer.listen(port, () => {
-      console.log(`> Ready on http://localhost:${port}`);
+      logStartup(`Ready on http://localhost:${port}`);
     });
   })
   .catch((error) => {
+    clearInterval(startupWatchdog);
     console.error("> Failed to start SynaptOS server", error);
     process.exit(1);
   });

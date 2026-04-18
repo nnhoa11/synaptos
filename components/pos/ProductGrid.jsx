@@ -51,13 +51,17 @@ export default function ProductGrid({ onAddToCart, products = [] }) {
         {filteredProducts.map((product) => (
           <ProductCard
             key={product.skuId}
+            category={product.category}
             current_price={product.currentPrice}
             discount_pct={product.discountPct}
             expiry_iso={product.expiryIso}
+            item_traffic={product.itemTraffic}
             original_price={product.originalPrice}
             product_name={product.productName}
             quantity={product.quantity}
+            recent_velocity={product.recentVelocity}
             sku_id={product.skuId}
+            status_tone={product.statusTone}
             unit={product.unit}
             onClick={onAddToCart}
           />

@@ -10,9 +10,14 @@ function mapProduct(product) {
   return {
     sku_id: product.skuId,
     product_name: product.productName,
+    category: product.category,
     current_price: product.currentPrice,
     original_price: product.originalPrice,
     discount_pct: product.discountPct,
+    quantity: product.quantity,
+    item_traffic: product.itemTraffic,
+    recent_velocity: product.recentVelocity,
+    status_tone: product.statusTone,
     unit: product.unit,
     flashing: Boolean(product.flashing),
   };
@@ -40,6 +45,11 @@ export default function EinkDisplay({ storeId }) {
                       currentPrice: payload.current_price,
                       originalPrice: payload.original_price,
                       discountPct: payload.discount_pct,
+                      quantity: payload.quantity ?? product.quantity,
+                      category: payload.category ?? product.category,
+                      itemTraffic: payload.item_traffic ?? product.itemTraffic,
+                      recentVelocity: payload.recent_velocity ?? product.recentVelocity,
+                      statusTone: payload.status_tone ?? product.statusTone,
                       flashing: true,
                     }
                   : product
