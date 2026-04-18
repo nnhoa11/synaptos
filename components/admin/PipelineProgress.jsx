@@ -20,6 +20,42 @@ const WAITING_SUMMARIES = [
   "Waiting…",
 ];
 
+function normalizeEventStatus(status) {
+  if (status === "start") return "running";
+  if (status === "failed") return "error";
+  if (status === "completed") return "done";
+  return status ?? "waiting";
+}
+
+function normalizePipelineEvent(event) {
+  if (!event) return null;
+  const stepKey = event.stepKey ?? event.step ?? null;
+  if (!stepKey) return null;
+
+  return {
+    ...event,
+    stepKey,
+    status: normalizeEventStatus(event.status),
+    summary:
+      event.summary ??
+      (event.status === "start"
+        ? "Running…"
+        : event.status === "failed"
+          ? event.reason ?? "Stage failed."
+          : event.status === "done" || event.status === "completed"
+            ? "Completed."
+            : null),
+  };
+}
+
+function buildSeedStepMap(seedSteps = {}) {
+  return Object.fromEntries(
+    Object.entries(seedSteps)
+      .map(([key, value]) => [key, normalizePipelineEvent({ stepKey: key, ...value })])
+      .filter(([, value]) => value)
+  );
+}
+
 function AgentIcon({ num, status }) {
   const cls =
     status === "done"
@@ -71,8 +107,17 @@ function AgentStepCard({ agent, stepData }) {
   );
 }
 
-export default function PipelineProgress({ onClose, open, storeId }) {
+export default function PipelineProgress({ onClose, open, seedSteps = {}, storeId }) {
   const [stepMap, setStepMap] = useState({});
+
+  useEffect(() => {
+    if (!open) {
+      setStepMap({});
+      return;
+    }
+
+    setStepMap(buildSeedStepMap(seedSteps));
+  }, [open, seedSteps, storeId]);
 
   useEffect(() => {
     if (!open || !storeId) {
@@ -82,9 +127,10 @@ export default function PipelineProgress({ onClose, open, storeId }) {
 
     const socket = io({ query: { storeId } });
     socket.on("pipeline", (event) => {
-      const key = event?.stepKey ?? event?.step;
+      const normalized = normalizePipelineEvent(event);
+      const key = normalized?.stepKey;
       if (!key) return;
-      setStepMap((current) => ({ ...current, [key]: event }));
+      setStepMap((current) => ({ ...current, [key]: normalized }));
     });
 
     return () => socket.disconnect();
