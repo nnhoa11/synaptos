@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { flushSync } from "react-dom";
 import ControlTowerOverview from "@/components/admin/ControlTowerOverview";
 import PipelineProgress from "@/components/admin/PipelineProgress";
 import StoreTabs from "@/components/admin/StoreTabs";
@@ -87,6 +88,12 @@ function buildPipelineStepsFromResponse(response) {
   };
 }
 
+function waitForPipelineDrawer() {
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(resolve));
+  });
+}
+
 export default function DashboardPage() {
   const bootstrap = useAdminBootstrap();
   const [refreshToken, setRefreshToken] = useState(0);
@@ -126,8 +133,11 @@ export default function DashboardPage() {
     }
 
     setPageError("");
-    setRunningStoreId(storeId);
+    flushSync(() => {
+      setRunningStoreId(storeId);
+    });
     setPipelineSeedSteps(INITIAL_PIPELINE_STEPS);
+    await waitForPipelineDrawer();
 
     try {
       const response = await fetchJson("/api/aggregation/run", {
@@ -146,6 +156,10 @@ export default function DashboardPage() {
         ingestion: { status: "error", summary: error.message || "Pipeline failed to start." },
       });
       setPageError(error.message);
+    } finally {
+      window.setTimeout(() => {
+        setRunningStoreId((current) => (current === storeId ? null : current));
+      }, 2000);
     }
   }
 

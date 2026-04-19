@@ -55,7 +55,7 @@ function buildSeedStepMap(seedSteps = {}) {
       .filter(([, value]) => value)
   );
 }
-
+const normalizeStatus = normalizeEventStatus;
 function AgentIcon({ num, status }) {
   const cls =
     status === "done"
@@ -76,7 +76,7 @@ function StatusMark({ status }) {
 }
 
 function AgentStepCard({ agent, stepData }) {
-  const status = stepData?.status ?? "waiting";
+  const status = normalizeStatus(stepData?.status);
   const cardClass = `pipeline-step-card pipeline-step-card--${status}`;
 
   return (
@@ -141,13 +141,25 @@ export default function PipelineProgress({ onClose, open, seedSteps = {}, storeI
     [stepMap]
   );
 
-  const doneCount = steps.filter((s) => s.stepData?.status === "done").length;
-  const hasError = steps.some((s) => s.stepData?.status === "error");
+  const doneCount = steps.filter((s) => normalizeStatus(s.stepData?.status) === "done").length;
+  const hasError = steps.some((s) => normalizeStatus(s.stepData?.status) === "error");
   const isComplete = doneCount === 5 && !hasError;
   const progressPct = isComplete ? 100 : hasError ? Math.round((doneCount / 5) * 100) : Math.round((doneCount / 5) * 100);
   const progressColor = isComplete ? "var(--green)" : hasError ? "var(--red)" : "var(--blue)";
 
   const totalTokens = steps.reduce((sum, s) => sum + (s.stepData?.tokens ?? 0), 0);
+
+  useEffect(() => {
+    if (!open || (!isComplete && !hasError)) {
+      return undefined;
+    }
+
+    const timer = window.setTimeout(() => {
+      onClose?.();
+    }, 2000);
+
+    return () => window.clearTimeout(timer);
+  }, [hasError, isComplete, onClose, open]);
 
   if (!open) return null;
 

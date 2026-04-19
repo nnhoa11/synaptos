@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { flushSync } from "react-dom";
 import Badge from "@/components/ui/Badge";
 import ModelRunDrawer from "@/components/admin/ModelRunDrawer";
 import PipelineProgress from "@/components/admin/PipelineProgress";
@@ -84,6 +85,12 @@ function buildPipelineStepsFromResponse(response) {
             : "Waiting…",
     },
   };
+}
+
+function waitForPipelineDrawer() {
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(resolve));
+  });
 }
 
 const MODES = [
@@ -310,14 +317,6 @@ export default function RecommendationsPage() {
   const [copiedKey, setCopiedKey] = useState("");
   const [error, setError] = useState("");
 
-  if (bootstrap.loading || detailState.loading) {
-    return (
-      <div className="empty-state">
-        <Spinner size="lg" />
-      </div>
-    );
-  }
-
   const detail = detailState.detail;
   const markdownProposals = (detail?.proposals ?? []).filter(
     (proposal) => proposal.proposalType === "markdown" || proposal.executionRoute === "label"
@@ -439,17 +438,22 @@ export default function RecommendationsPage() {
   }
 
   async function runEngine() {
+    const storeId = bootstrap.selectedStoreId;
+
     try {
       setError("");
-      setRunningStoreId(bootstrap.selectedStoreId);
+      flushSync(() => {
+        setRunningStoreId(storeId);
+      });
       setPipelineSeedSteps(INITIAL_PIPELINE_STEPS);
+      await waitForPipelineDrawer();
       const response = await fetchJson("/api/aggregation/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           mode: "live",
           snapshot: bootstrap.defaultSnapshot,
-          storeId: bootstrap.selectedStoreId,
+          storeId,
         }),
       });
       setPipelineSeedSteps(buildPipelineStepsFromResponse(response));
@@ -459,6 +463,10 @@ export default function RecommendationsPage() {
         ingestion: { status: "error", summary: nextError.message || "Pipeline failed to start." },
       });
       setError(nextError.message);
+    } finally {
+      window.setTimeout(() => {
+        setRunningStoreId((current) => (current === storeId ? null : current));
+      }, 2000);
     }
   }
 
@@ -492,6 +500,14 @@ export default function RecommendationsPage() {
       : detail?.llmMode === "live"
         ? "live"
         : "shadow";
+
+  if (bootstrap.loading || detailState.loading) {
+    return (
+      <div className="empty-state">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
 
   return (
     <div className="page-shell">
