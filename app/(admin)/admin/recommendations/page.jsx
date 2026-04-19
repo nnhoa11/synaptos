@@ -15,6 +15,78 @@ import { fetchJson } from "@/lib/fetch-json";
 import { currency, formatAuditTime } from "@/lib/prototype-core";
 import styles from "@/components/admin/OpsWorkbench.module.css";
 
+const INITIAL_PIPELINE_STEPS = {
+  ingestion: { status: "running", summary: "Connecting to ingestion signals…" },
+  aggregation: { status: "waiting", summary: "Waiting for ingestion…" },
+  risk_scoring: { status: "waiting", summary: "Waiting for aggregation…" },
+  recommendation: { status: "waiting", summary: "Waiting for risk scoring…" },
+  campaign: { status: "waiting", summary: "Waiting for recommendation output…" },
+};
+
+function buildPipelineStepsFromResponse(response) {
+  const statuses = response?.stageSummary?.stageStatuses ?? {};
+  const routeSummary = response?.stageSummary?.routeSummary ?? {};
+  const isDoneLike = (value) => value === "completed" || value === "partial";
+  const isErrorLike = (value) => value === "failed";
+
+  return {
+    ingestion: {
+      status:
+        Object.entries(statuses).some(([key, value]) => key.startsWith("ingestion:") && isErrorLike(value))
+          ? "error"
+          : Object.entries(statuses).some(([key, value]) => key.startsWith("ingestion:") && isDoneLike(value))
+            ? "done"
+            : "waiting",
+      summary:
+        Object.entries(statuses).some(([key, value]) => key.startsWith("ingestion:") && isErrorLike(value))
+          ? "One or more signal ingestors failed."
+          : Object.entries(statuses).some(([key, value]) => key.startsWith("ingestion:") && value === "partial")
+            ? "Signal extraction completed with fallback signals."
+            : "Signal extraction completed.",
+    },
+    aggregation: {
+      status: isErrorLike(statuses.aggregation) ? "error" : isDoneLike(statuses.aggregation) ? "done" : "waiting",
+      summary:
+        isErrorLike(statuses.aggregation)
+          ? "Aggregation did not complete cleanly."
+          : statuses.aggregation === "partial"
+            ? "Aggregation completed with fallback merge logic."
+            : statuses.aggregation
+            ? "Structured store snapshot assembled."
+            : "Waiting for ingestion…",
+    },
+    risk_scoring: {
+      status: isErrorLike(statuses.risk_scoring) ? "error" : isDoneLike(statuses.risk_scoring) ? "done" : "waiting",
+      summary:
+        isErrorLike(statuses.risk_scoring)
+          ? "Risk scoring failed."
+          : statuses.risk_scoring
+            ? "Lot-level risk scores completed."
+            : "Waiting for aggregation…",
+    },
+    recommendation: {
+      status: isErrorLike(statuses.recommendation) ? "error" : isDoneLike(statuses.recommendation) ? "done" : "waiting",
+      summary:
+        isErrorLike(statuses.recommendation)
+          ? "Recommendation generation failed."
+          : statuses.recommendation
+            ? `${response?.proposalCount ?? 0} proposals generated.`
+            : "Waiting for risk scoring…",
+    },
+    campaign: {
+      status: isErrorLike(statuses.campaign) ? "error" : isDoneLike(statuses.campaign) ? "done" : "waiting",
+      summary:
+        isErrorLike(statuses.campaign)
+          ? "Campaign suggestion stage failed."
+          : statuses.campaign === "partial"
+            ? "Campaign windows prepared with fallback strategy."
+            : statuses.campaign
+            ? `Route summary: ${routeSummary.autoDispatched ?? 0} auto, ${routeSummary.pendingApproval ?? 0} approvals.`
+            : "Waiting…",
+    },
+  };
+}
+
 function waitForPipelineDrawer() {
   return new Promise((resolve) => {
     requestAnimationFrame(() => requestAnimationFrame(resolve));
@@ -240,6 +312,7 @@ export default function RecommendationsPage() {
   const detailState = useControlTowerDetail(bootstrap.selectedStoreId, bootstrap.defaultSnapshot, refreshToken);
   const [selectedProposal, setSelectedProposal] = useState(null);
   const [runningStoreId, setRunningStoreId] = useState(null);
+  const [pipelineSeedSteps, setPipelineSeedSteps] = useState({});
   const [dispatchingTaskId, setDispatchingTaskId] = useState("");
   const [copiedKey, setCopiedKey] = useState("");
   const [error, setError] = useState("");
@@ -372,8 +445,9 @@ export default function RecommendationsPage() {
       flushSync(() => {
         setRunningStoreId(storeId);
       });
+      setPipelineSeedSteps(INITIAL_PIPELINE_STEPS);
       await waitForPipelineDrawer();
-      await fetchJson("/api/aggregation/run", {
+      const response = await fetchJson("/api/aggregation/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -382,8 +456,12 @@ export default function RecommendationsPage() {
           storeId,
         }),
       });
+      setPipelineSeedSteps(buildPipelineStepsFromResponse(response));
       setRefreshToken((current) => current + 1);
     } catch (nextError) {
+      setPipelineSeedSteps({
+        ingestion: { status: "error", summary: nextError.message || "Pipeline failed to start." },
+      });
       setError(nextError.message);
     } finally {
       window.setTimeout(() => {
@@ -719,8 +797,12 @@ export default function RecommendationsPage() {
       />
       <PipelineProgress
         open={Boolean(runningStoreId)}
+        seedSteps={pipelineSeedSteps}
         storeId={runningStoreId}
-        onClose={() => setRunningStoreId(null)}
+        onClose={() => {
+          setRunningStoreId(null);
+          setPipelineSeedSteps({});
+        }}
       />
     </div>
   );
